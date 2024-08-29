@@ -1,0 +1,232 @@
+\documentclass{zett}
+\input{preambles}
+
+\usetikzlibrary {automata, positioning, arrows}
+\tikzset{
+  ->,
+  >=stealth',
+  node distance=2cm,
+  every state/.style={thick, fill=gray!10},
+  initial text=start,
+}
+
+\title{regular languages}
+\author{Frank Tsai}
+\date{\today}
+% \thanks{}
+
+\newcommand{\Lfin}{\ensuremath{L_{\mathsf{Fin}}}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Deterministic finite automaton}
+\label{sec:dfa}
+
+\begin{defn}
+  A \emph{deterministic finite automaton} (DFA) consists of the following data
+  \begin{enumerate}
+  \item a nonempty finite set $Q$ of \emph{states};
+  \item a nonempty finite set $\Sigma$ of \emph{alphabet};
+  \item a \emph{transition function} $\delta : Q \times \Sigma \to Q$;
+  \item an \emph{initial state} $q_{0} \in Q$;
+  \item a set $F \subseteq Q$ of \emph{final states}.
+  \end{enumerate}
+\end{defn}
+
+\begin{node}%
+  A DFA is a simple \emph{abstract machine}.
+  The transition function $\delta : Q \times \Sigma \to Q$ specifies how the machine steps given an input and the current state.
+\end{node}
+
+\begin{node}%
+  Given a DFA $D = (Q, \Sigma, \delta, q_{0}, F)$.
+  We define a new function $\delta^{*} : \Sigma^{*} \to Q$ by recursion:
+  \begin{enumerate}
+  \item If the input is the empty string then $\delta^{*}(\varepsilon) = q_{0}$;
+  \item If the input is a string $s'$ followed by a character $c$ then $\delta^{*}(s' \cdot c) = \delta(\delta^{*}(s'), c)$.
+  \end{enumerate}
+  For any string $s$ over the alphabet $\Sigma$, $\delta^{*}(s)$ is the state of $D$ after processing $s$.
+\end{node}
+
+\begin{defn}
+  Let $D = (Q, \Sigma, \delta, q_{0}, F)$ be a DFA.
+  We say that a string $s$ over the alphabet $\Sigma$ is \emph{accepted} by $D$ if
+  $$
+  \delta^{*}(s) \in F
+  $$
+  In other words, a string $s$ is accepted by $D$ if $D$ ends up in a final state after processing $s$.
+\end{defn}
+
+\begin{defn}
+  Let $D = (Q, \Sigma, \delta, q_{0}, F)$ be a DFA.
+  The \emph{language} of $D$, denoted $\sL(D)$ is the set
+  $$
+  \sL(D) = \Set{s \in \Sigma^{*} \mid \delta^{*}(s) \in F}
+  $$
+  We say that a language $L \subseteq \Sigma^{*}$ is \emph{recognized} by a DFA $D$ if $\sL(D) = L$.
+\end{defn}
+
+\begin{defn}
+  A language $L$ is said to be \emph{regular} if there is a DFA $D$ that recognizes $L$.
+\end{defn}
+
+\begin{node}%
+  In the following examples, take $\Sigma = \Set{0,1}$.
+\end{node}
+
+\begin{eg}
+  The empty language $\varnothing$ is regular.
+\end{eg}
+\begin{node}
+  This language is recognized by the following DFA:
+  \begin{center}
+    \begin{tikzpicture}
+      \node[state, initial] (q0) {$q_{0}$};
+      \draw (q0) edge[loop above] node{0,1} (q0);
+    \end{tikzpicture}
+  \end{center}
+\end{node}
+
+\begin{eg}
+  The language $\Sigma^{*}$ is regular.
+\end{eg}
+\begin{node}
+  This language is recognized by the following DFA:
+  \begin{center}
+    \begin{tikzpicture}
+      \node[state, initial, accepting] (q0) {$q_{0}$};
+      \draw (q0) edge[loop above] node{0,1} (q0);
+    \end{tikzpicture}
+  \end{center}
+\end{node}
+
+\begin{eg}\label{eg:finite-languages-regular}
+  Every finite language $\Lfin$ is regular.
+\end{eg}
+\begin{node}
+  The idea is that we can construct a DFA by brute force.
+  This works because there are only finitely many strings in $\Lfin$, i.e., finitely many states suffice.
+  For instance, suppose that $\Lfin = \Set{000, 010, 01}$.
+  The following DFA recognizes $\Lfin$:
+  \begin{center}
+    \begin{tikzpicture}
+      \node[state, initial] (q0) {$\lambda$};
+      \node[state, right of=q0] (0) {0};
+      \node[state, right of=0] (00) {00};
+      \node[state, accepting, below of=0] (01) {01};
+      \node[state, accepting, right of=01] (010) {010};
+      \node[state, accepting, right of=00] (000) {000};
+      \node[state, right of=010] (dead) {};
+      \draw (q0) edge node[above] {0} (0);
+      \draw (q0) edge[out=-45, in=145] node[above, pos=0.1] {1} (dead);
+      \draw (0) edge node[above] {0} (00);
+      \draw (0) edge node[right, pos=0.3] {1} (01);
+      \draw (00) edge node[above] {0} (000);
+      \draw (00) edge node[above, pos=0.3] {1} (dead);
+      \draw (000) edge node[right] {0,1} (dead);
+      \draw (01) edge node[below] {0} (010);
+      \draw (01) edge[out=-30, in=-140] node[below, pos=0.2] {1} (dead);
+      \draw (010) edge node[below] {0,1} (dead);
+      \draw (dead) edge[loop right] node[right] {0,1} (dead);
+    \end{tikzpicture}
+  \end{center}
+\end{node}
+
+\begin{defn}
+  Let $L, L' \subseteq \Sigma^{*}$ be languages.
+  The concatenation $L \cdot L'$ is the language
+  $$
+  L \cdot L' = \Set{s \cdot s' \in \Sigma^{*} \mid s \in L \wedge s' \in L'}
+  $$
+\end{defn}
+
+\begin{thm}\label{thm:regular-closure}
+  The class of regular languages is closed under intersection, union, complement, concatenation, and Kleene closure.
+  That is, if $L$ and $L'$ are regular languages then so are $L \cap L'$, $L \cup L'$, $\Sigma^{*} \setminus L$, $L \cdot L'$, and $L^{*}$.
+\end{thm}
+\begin{proof}[Proof sketch]
+  \begin{node}\label{node:tensor-of-dfa}%
+    We only sketch the proof of closure under union.
+    Let $D = (Q, \Sigma, \delta, q_{0}, F)$ (resp., $D' = (Q', \Sigma, \delta', q_{0}', F')$) be a DFA that recognizes $L$ (resp., $L'$).
+    The main idea is to construct a new DFA that simulates both $D$ and $D'$:
+    \begin{enumerate}
+    \item take $Q \times Q'$ as the set of states;
+    \item take $\Sigma$ as the alphabet;
+    \item define the transition function $\Delta : (Q \times Q') \times \Sigma \to Q \times Q'$ by
+      $$
+      \Delta((q, q'), c) = (\delta(q, c), \delta'(q', c))
+      $$
+    \item take $(q_{0}, q_{0}') \in Q \times Q'$ as the initial state;
+    \item take $\Set{(q, q') \in Q \times Q' \mid q \in F \vee q' \in F'}$ as the set of final states.
+    \end{enumerate}
+  \end{node}
+\end{proof}
+
+\section{Regular expressions}
+\label{sec:regex}
+
+\begin{defn}
+  Given an alphabet $\Sigma$, \emph{regular expressions} are defined inductively as follows:
+  \begin{enumerate}
+  \item $\varnothing$ is a regular expression;
+  \item $\varepsilon$ is a regular expression;
+  \item each literal $c \in \Sigma$ is a regular expression;
+  \item if $r$ and $r'$ are regular expressions then $r \cdot r'$ is a regular expression;
+  \item if $r$ and $r'$ are regular expressions then $r + r'$ is a regular expression;
+  \item if $r$ is a regular expression then $r^{*}$ is a regular expression.
+  \end{enumerate}
+\end{defn}
+
+\begin{node}
+  We have just defined the syntax of regular expressions.
+  The semantics of regular expressions is defined by mapping each regular expression to a language.
+\end{node}
+
+\begin{defn}
+  The language of a regular expression $r$ is defined by recursion on $r$:
+  \begin{enumerate}
+  \item the language of the regular expression $\varnothing$ is the empty language:
+    $$\sL(\varnothing) = \varnothing$$
+  \item the language of the regular expression $\varepsilon$ is the language containing just the empty string:
+    $$\sL(\varepsilon) = \Set{\varepsilon}$$
+  \item the language of the regular expression $c$ is the language containing just $c$: for each $c \in \Sigma$,
+    $$\sL(c) = \Set{c}$$
+  \item the language of the regular expression $rr'$ is the concatenation of $\sL(r)$ and $\sL(r')$:
+    $$\sL(r \cdot r') = \sL(r) \cdot \sL(r')$$
+  \item the language of the regular expression $r + r'$ is the union of $\sL(r)$ and $\sL(r')$:
+    $$\sL(r + r') = \sL(r) \cup \sL(r')$$
+  \item the language of the regular expression $r^{*}$ is the Kleene closure of $\sL(r)$:
+    $$\sL(r^{*}) = (\sL(r))^{*}$$
+  \end{enumerate}
+\end{defn}
+
+\begin{thm}\label{thm:regex-to-dfa}
+  Let $e$ be a regular expression, $\sL(e)$ is regular, i.e., there is a DFA $D$ that recognizes $\sL(e)$.
+\end{thm}
+\begin{proof}
+  \begin{node}
+    We proceed by induction on the structure of $e$.
+    When $e$ is $\varnothing, \varepsilon,$ or $c$, $\sL(e)$ is finite.
+    In \cref{eg:finite-languages-regular}, we informally argued that finite languages are regular.
+  \end{node}
+  \begin{node}
+    When $e$ is $r \cdot r'$ or $r + r'$, the induction hypothesis states that $\sL(r)$ and $\sL(r')$ are regular.
+    By definition $\sL(r \cdot r') = \sL(r) \cdot \sL(r')$ and $\sL(r + r') = \sL(r) \cup \sL(r')$.
+    By \cref{thm:regular-closure}, the class of regular languages is closed under concatenation and union, so $\sL(r \cdot r')$ and $\sL(r + r')$ are regular.
+  \end{node}
+  \begin{node}
+    Finally, when $e$ is $r^{*}$, the induction hypothesis again states that $\sL(r)$ is regular.
+    By definition, $\sL(r^{*}) = (\sL(r))^{*}$.
+    By \cref{thm:regular-closure}, the class of regular languages is closed under Kleene closure, so $\sL(r^{*})$ is regular.
+  \end{node}
+\end{proof}
+
+\begin{node}
+  \cref{thm:regex-to-dfa} shows that every regular expression has a corresponding DFA.
+  The converse is also true: every DFA has a corresponding regular expression.
+  The proof of this fact is not trivial.
+\end{node}
+
+\end{document}

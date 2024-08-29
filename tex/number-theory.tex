@@ -1,0 +1,146 @@
+\documentclass[article,10pt,oneside]{memoir}
+\input{preambles}
+\title{greatest common divisor}
+\author{Frank Tsai}
+\date{\today}
+% \thanks{}
+
+\newcommand{\modulo}{\mathrel{\mathrm{mod}}}
+
+\begin{document}
+\maketitle
+
+\begin{defn}\label{defn:gcd}
+  The \emph{greatest common divisor} (gcd) of two integers $a$ and $b$, is an integer $k$ such that
+  \begin{itemize}
+  \item $k \mid a$
+  \item $k \mid b$
+  \item $\forall k' \in \dZ.\,(k' \mid a) \wedge (k' \mid b) \imp (k' \mid k)$
+  \end{itemize}
+\end{defn}
+
+\begin{rmk}
+  Note that \cref{defn:gcd} allows nonunique gcds.
+  In fact, if $k$ is a gcd of $a$ and $b$, then so is $-k$.
+  This can be remedied by choosing the nonnegative one.
+  We write $\gcd(a, b)$ for the nonnegative integer satisfying the conditions in \cref{defn:gcd}.
+\end{rmk}
+
+\begin{rmk}
+  Although gcds is defined for integers, its computation can be done using just nonnegative integers (c.f., Lemmas \ref{lem:symmetry} and \ref{lem:sign}).
+\end{rmk}
+
+\cref{lem:fundamental} is the backbone lemma that enables us to device a recursive algorithm to compute gcds.
+\begin{lem}\label{lem:fundamental}
+  For any integers $a, b$, and $c$, $\gcd(a - cb, b) = \gcd(a,b)$.
+\end{lem}
+\begin{proof}
+  Let $k = \gcd(a - cb, b)$.
+  It follows by definition that $k \mid b$.
+  Since $a - cb = dk$ for some integer $d$, we can express $a$ as $a = dk + cb$.
+  But since $b$ is divisible by $k$, $a$ is also divisible by $k$.
+  
+  It remains to show that, for any integer $k'$, if $k'$ divides both $a$ and $b$, then $k'$ also divides $k$.
+  To this end, it suffices to show that $k' \mid (a - cb)$ and that $k' \mid b$.
+  The latter follows immediately by assumption.
+  As for the former, since $k'$ divides both $a$ and $b$ by assumption, it follows that $k'$ divides $a - cb$.
+\end{proof}
+
+\begin{lem}\label{lem:symmetry}
+  For all integers $a$ and $b$, $\gcd(a, b) = \gcd(b, a)$.
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\begin{lem}\label{lem:sign}
+  For all integers $a$ and $b$, $\gcd(-a, b) = \gcd(a, b)$.
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\begin{lem}\label{lem:base}
+  For any integer $a$, $\gcd(0,a) = a$.
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+If we set $c := 1$ in \cref{lem:fundamental}, then we get $\forall a, b \in \dZ.\,\gcd(a-b, b) = \gcd(a, b)$.
+This allows us to calculate the gcd of two integers as follows.
+
+\begin{eg}\label{eg:c-1}
+  \begin{align}
+    \gcd(321,123) &= \gcd(198,123)\\
+                  &= \gcd(75,123) = \gcd(123,75)\\
+                  &= \gcd(48,75) = \gcd(75,48)\\
+                  &= \gcd(27,48) = \gcd(48,27)\\
+                  &= \gcd(21,27) = \gcd(27,21)\\
+                  &= \gcd(6,21) = \gcd(21,6)\\
+                  &= \gcd(15,6)\\
+                  &= \gcd(9,6)\\
+                  &= \gcd(3,6) = \gcd(6,3)\\
+                  &= \gcd(3,3)\\
+                  &= \gcd(0,3) = 3
+  \end{align}
+\end{eg}
+
+Instead of choosing a fixed $c$ in each step, Euclid's algorithm chooses a more clever $c$.
+This choice is given by Euclid's division lemma.
+\begin{lem}[Euclid's division lemma]
+  Given two integers $a$ and $b$, with $b \neq 0$, there are unique integers $q$ and $r$ such that
+  \begin{itemize}
+  \item $a = bq + r$
+  \item $0 \leq r < |b|$, where $|b|$ is the absolute value of $b$
+  \end{itemize}
+\end{lem}
+
+Now, to compute $\gcd(a, b)$, we can choose $c := q$, where $q$ is the unique integer such that $a = bq + r$.
+Then, $\gcd(a, b) = \gcd(a - qb, b)$.
+Note that $a - qb = r$, so we obtain a formula in terms of the remainder: $\gcd(a, b) = \gcd(r, b)$.
+Now, \cref{eg:c-1} can be computed as follows.
+
+\begin{eg}
+  \begin{align}
+    \gcd(321, 123) &= \gcd(321 \modulo 123, 123)\\
+                   &= \gcd(75, 123) = \gcd(123, 75) = \gcd(123 \modulo 75, 75)\\
+                   &= \gcd(48, 75) = \gcd(75, 48) = \gcd(75 \modulo 48, 48)\\
+                   &= \gcd(27, 48) = \gcd(48, 27) = \gcd(48 \modulo 27, 27)\\
+                   &= \gcd(21, 27) = \gcd(27, 21) = \gcd(27 \modulo 21, 21)\\
+                   &= \gcd(6, 21) = \gcd(21, 6) = \gcd(21 \modulo 6, 6)\\
+                   &= \gcd(3, 6) = \gcd(6, 3) = \gcd(6 \modulo 3, 3)\\
+                   &= \gcd(0, 3) = 3
+  \end{align}
+\end{eg}
+
+\begin{thm}
+  In each step of Euclid's algorithm computing $\gcd(a, b)$, both arguments can be expressed as a combination of $a$ and $b$.
+\end{thm}
+\begin{proof}
+  Let $n$ be the number of steps taken and $a_{n}$ and $b_{n}$ be the first and the second argument at step $n$, respectively.
+  We need to show that $a_{n} = u_{1}a + v_{1}b$ and $b_{n} = u_{2}a + v_{2}b$ for some integers $u_{1}, v_{1}, u_{2}$, and $v_{2}$.
+
+  The base case is clear.
+  \[
+    \gcd(a, b) = \gcd(1a + 0b, 0a + 1b).
+  \]
+  
+  In the induction step, let us assume without loss of generality that $b_{n} < a_{n}$.
+  We can always swap them if it is not the case.
+  By definition, $a_{n+1} = r$, where $r = a_{n} - b_{n}q$, and $b_{n+1} = b_{n}$.
+  By the induction hypothesis, $b_{n} = u_{2}a + v_{2}b$, so clearly $b_{n+1}$ can be expressed as a combination of $a$ and $b$.
+  As for $a_{n+1}$, we have $a_{n} = u_{1}a + v_{1}b$ by the induction hypothesis, so
+  \[
+    a_{n+1} = a_{n} - b_{n}q = (u_{1}a + v_{1}b) - (v_{2}a + v_{2}b)q = (u_{1} - v_{2}q)a + (v_{1} - v_{2}q)b
+  \]
+\end{proof}
+
+\begin{cor}[B\'ezout's lemma]
+  If $k$ is $\gcd(a, b)$, then $k = ua + vb$ for some integers $u$ and $v$.
+\end{cor}
+
+\bibliographystyle{alpha}
+\bibliography{all}
+
+\end{document}

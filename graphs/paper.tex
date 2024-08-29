@@ -1,0 +1,923 @@
+\documentclass{amsart}
+\input{decls}
+\usetikzlibrary {arrows.meta,backgrounds,fit,positioning}
+\title{Graphs}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Graphs}
+\label{sec:graphs}
+
+\begin{defn}
+  \label{defn:graphs}
+  A (directed) \emph{graph} $G$ consists of the following data:
+  \begin{enumerate}
+  \item A set $V$ of \emph{vertices}.
+  \item A set $E \subseteq V \times V$ of \emph{edges}.
+  \end{enumerate}
+\end{defn}
+
+\para
+\label{para:edges-are-binary-relations}
+Recall that a binary relation on a set $V$ can be encoded as any subset of $V \times V$.
+Thus, a graph is a set $V$ equipped with a binary relation $E$.
+
+\begin{notn}
+  The data described in \cref{defn:graphs} can be formalized as a pair that consists of a set of vertices $V$ and a set of edges $E$.
+  We write $(V, E)$ to denote a graph with a vertex set $V$ and an edge set $E$.
+\end{notn}
+
+\begin{eg}
+  \label{eg:graphs-example1}
+  Let $V = \{A, B, C\}$ and $E = \{(A,B),(B,A),(B,C),(C,A)\}$.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below left of= A] {$B$};
+        \node (C) [below right of=A] {$C$};
+      \end{scope}
+      \begin{scope}[every edge/.style={draw= black, very thick}]
+        \path[->] (A) edge[bend right= 30] (B);
+        \path[->] (B) edge[bend right= 30] (A);
+        \path[->] (B) edge (C);
+        \path[->] (C) edge (A);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{defn}
+  \label{defn:graphs-undirected}
+  A graph $G = (V,E)$ is \emph{undirected} if the binary relation $E$ is symmetric.
+\end{defn}
+
+\para
+\cref{eg:graphs-example1} is not an undirected graph since $(B,C) \in E$, but $(C,B) \notin E$.
+Similarly, $(C,A) \in E$, but $(A,C) \notin E$.
+
+\para
+In an undirected graph, we drop the arrow tips as they convey no additional information.
+
+\begin{eg}
+  \label{eg:graphs-example2}
+  Let $V = \{A, B, C\}$ and $E = V \times V$.
+  Note that $E$ is symmetric.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below left of= A] {$B$};
+        \node (C) [below right of=A] {$C$};
+      \end{scope}
+      \begin{scope}[every edge/.style={draw= black, very thick}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (C);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{defn}
+  \label{defn:walks}
+  Let $G = (V,E)$ be a graph.
+  A \emph{walk} is a sequence of vertices and edges defined inductively as follows:
+  \begin{enumerate}
+  \item The empty sequence is a walk.
+  \item If $(v_{n}, v_{m}) \in E$ and $v_{1},(v_{1},v_{2}),v_{2},\ldots,v_{n}$ is a walk then the sequence
+    \[
+      v_{1},(v_{1},v_{2}),v_{2},\ldots,v_{n},(v_{n},v_{m}),v_{m}
+    \]
+    is a walk.
+  \end{enumerate}
+\end{defn}
+
+\begin{defn}
+  \label{defn:walks-length}
+  The \emph{length} of a walk is the number of edges in that walk.
+\end{defn}
+
+\begin{eg}
+  \label{eg:walk-example-1}
+  Let $G$ be the graph defined in \cref{eg:graphs-example2}.
+  The sequence
+  \[
+    A,(A,B),B,(B,C),C,(C,A),A,(A,B),B
+  \]
+  is a walk.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below left of= A] {$B$};
+        \node (C) [below right of=A] {$C$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill=white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (C);
+        \path[->] (A) edge[draw= red, bend right= 30] node {$1$} (B);
+        \path[->] (B) edge[draw= red, bend right= 30] node {$2$} (C);
+        \path[->] (C) edge[draw= red, bend right= 30] node {$3$} (A);
+        \path[->] (A) edge[draw= red, bend left= 30] node {$4$} (B);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  Each red arrow represents a step of the walk.
+\end{eg}
+
+\begin{defn}
+  \label{defn:paths}
+  Let $G = (V,E)$ be a graph.
+  A \emph{path} is a walk in which all vertices are distinct.
+\end{defn}
+
+\begin{ceg}
+  \label{ceg:nonpath-example-1}
+  The walk defined in \cref{eg:walk-example-1} is not a path since the vertices $A$ and $B$ are repeated.
+\end{ceg}
+
+\begin{eg}
+  \label{eg:path-example-1}
+  Let $G$ be the graph defined in \cref{eg:graphs-example2}.
+  The sequence
+  \[
+    A,(A,B),B,(B,C),C
+  \]
+  is a path.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below left of= A] {$B$};
+        \node (C) [below right of=A] {$C$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (C);
+        \path[->] (A) edge[draw= red, bend right= 30] node {$1$} (B);
+        \path[->] (B) edge[draw= red, bend right= 30] node {$2$} (C);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{defn}
+  \label{defn:reachability}
+  Let $G = (V,E)$ be a graph.
+  For any two vertices $u,v \in V$, $u$ and $v$ are said to be \emph{s-t reachable} if there is a path from $u$ to $v$.
+\end{defn}
+
+\begin{eg}
+  \label{eg:reachability-example-1}
+  Consider the following (undirected) graph:
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below of= A] {$B$};
+        \node (C) [right of= B] {$C$};
+        \node (D) [right of= A] {$D$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (C);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  $A$ and $C$ are s-t reachable.
+  There are two paths connecting them (blue and red, respectively):
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below of= A] {$B$};
+        \node (C) [right of= B] {$C$};
+        \node (D) [right of= A] {$D$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[draw= red] (B);
+        \path (A) edge[draw= blue] (C);
+        \path (B) edge[draw= red] (C);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{ceg}
+  \label{ceg:reachability-nonexample-1}
+  Consider the same graph defined in \cref{eg:reachability-example-1}, the vertices $A$ and $D$ are not s-t reachable.
+\end{ceg}
+
+\begin{thm}
+  \label{thm:reachability-is-an-equivalence}
+  Let $G = (V, E)$ be an undirected graph.
+  The s-t reachability relation defined in \cref{defn:reachability} is an equivalence relation on the set of vertices $V$.
+\end{thm}
+\begin{proof}\hfill
+  \para
+  Reflexivity: Let $v \in V$.
+  The empty walk is trivially a path.
+  Thus, $v$ is s-t reachable from itself.
+
+  \para
+  Symmetry: Let $u,v \in V$ be any two vertices.
+  Assume that $v$ is s-t reachable from $u$, i.e., there is a path $p$ from $u$ to $v$.
+  We need to prove that $u$ is s-t reachable from $v$, i.e., there is a path from $v$ to $u$.
+  To this end, we do induction on the length of $p$.
+  In the base case, $p$ has length 0, so it is the empty path.
+  Thus, the result follows from reflexivity.
+  In the induction step, $p$ is a path of length $k+1$ and it is of the form $p',(u',v),v$, where $u'$ is some vertex and $p'$ is a path from $u$ to $u'$ of length $k$.
+  By the induction hypothesis, there is a path $\widetilde{p}$ from $u'$ to $u$.
+  Since $G$ is undirected, $(v,u')$ is also an edge of $G$.
+  Thus, the sequence
+  \[
+    v,(v,u'),\widetilde{p}
+  \]
+  defines a path from $v$ to $u$.
+
+  \para
+  Transitivity: Let $u,v,w \in V$ be any three vertices.
+  Assume that there is a path $p$ from $u$ to $v$ and a path $p'$ from $v$ to $w$.
+  The concatenation of $p$ and $p'$ defines a path from $u$ to $w$.
+  You can prove this rigorously by induction on the length of $p$.
+  The detail is left as an exercise.
+\end{proof}
+
+\begin{rmk}
+  \label{rmk:reachability-not-equivalence-for-directed-graphs}
+  In general, \cref{thm:reachability-is-an-equivalence} fails to hold for directed graphs because the s-t reachability relation is, in general, not symmetric.
+\end{rmk}
+
+\begin{ceg}
+  \label{ceg:reachability-not-equivalence-for-directed-graphs-nonexample-1}
+  Consider the following graph.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [right of= A] {$B$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path[->] (A) edge (B);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  There is a path from $A$ to $B$, but there is no path from $B$ to $A$.
+\end{ceg}
+
+\begin{defn}
+  \label{defn:connected-components}
+  Let $G$ be an undirected graph.
+  A \emph{(path) connected component} of $G$ is an equivalence class with respect to the s-t reachability relation.
+\end{defn}
+
+\begin{eg}
+  \label{eg:connected-components-example-1}
+  The graph defined in \cref{eg:reachability-example-1} has exactly 2 connected components (red and blue, respectively).
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [below of= A] {$B$};
+        \node (C) [right of= B] {$C$};
+        \node (D) [right of= A] {$D$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (C);
+      \end{scope}
+      \begin{scope}[on background layer]
+        \node[circle, draw=blue, very thick, fill= blue!30, fit= (D)] {};
+      \end{scope}
+      \begin{scope}[on background layer]
+        \filldraw[red!30, draw=red, very thick] (-0.5,-2.5) -- (2.5,-2.5) -- (2.7,-2) -- (0.5,0.5) -- (-0.5,0.5) -- cycle;
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{defn}
+  \label{defn:connected-graphs}
+  An undirected graph $G$ is said to be \emph{(path) connected} if it has exactly one connected component.
+\end{defn}
+
+\begin{eg}
+  \label{eg:connected-graphs-example-1}
+  The graph defined in \cref{eg:graphs-example2} is connected because it has exactly one connected component.
+\end{eg}
+
+\begin{ceg}
+  \label{ceg:connected-graphs-nonexample-1}
+  The graph defined in \cref{eg:reachability-example-1} is not connected because it has two connected components.
+\end{ceg}
+
+\section{Graph exploration algorithms}
+\label{sec:graph-exploration-algorithms}
+
+\para
+\label{para:graph-exploration-algorithms-main-idea-1}
+To explore every vertex of an undirected graph $(V,E)$, we divide $V$ into three piles: explored, frontier, and unexplored.
+Initially, the unexplored pile contains every vertex and the explored and frontier piles are empty.
+
+\medskip
+\para
+\label{para:graph-exploration-algorithms-main-idea-5}
+We can explore the graph recursively.
+We match the current piles against the conditions stated in
+\ref{para:graph-exploration-algorithms-main-idea-2},
+\ref{para:graph-exploration-algorithms-main-idea-3}, and
+\ref{para:graph-exploration-algorithms-main-idea-4}
+in this order.
+
+\medskip
+\para
+\label{para:graph-exploration-algorithms-main-idea-2}
+If the unexplored pile is empty, we can move every vertex in the frontier pile to the explored pile.
+This is the base case of the recursion.
+
+\medskip
+\para
+\label{para:graph-exploration-algorithms-main-idea-3}
+If the frontier pile is empty, move an arbitrary vertex in the unexplored pile to the frontier pile.
+Make a recursive call on the current piles (i.e., go back to \ref{para:graph-exploration-algorithms-main-idea-5}).
+
+\medskip
+\para
+\label{para:graph-exploration-algorithms-main-idea-4}
+If the frontier pile is not empty, pick the next vertex $v$ in the frontier pile.
+If $v$ is not adjacent to any unexplored vertex, then $v$ has been fully explored, so we can move it to the explore pile.
+Otherwise, we move an arbitrary vertex adjacent to $v$ in the unexplored pile to the frontier pile.
+Finally, we make a recursive call on the current piles (i.e., go back to \ref{para:graph-exploration-algorithms-main-idea-5}).
+
+\begin{rmk}
+  \label{rmk:graph-exploration-algorithms-next-vertex}
+  The ``next vertex'' in \ref{para:graph-exploration-algorithms-main-idea-4} is kept abstract intentionally.
+  There are two natural ways to pick the ``next vertex:'' pick the first vertex or the last vertex added to the frontier pile.
+  The former choice corresponds to breadth-first search (BFS) and the latter choice corresponds to depth-first search (DFS).
+\end{rmk}
+
+\begin{rmk}
+  \label{rmk:graph-exploration-algorithms-termination}
+  Each recursive call in
+  \ref{para:graph-exploration-algorithms-main-idea-3} and
+  \ref{para:graph-exploration-algorithms-main-idea-4}
+  is made on a smaller unexplored pile.
+  We can prove theorems about this algorithm by strong induction on the size of the unexplored pile.
+\end{rmk}
+
+\begin{eg}
+  \label{eg:bfs-example}
+  Run BFS on the following graph:
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D) [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \para
+  Initially, the frontier pile is empty.
+  This matches \ref{para:graph-exploration-algorithms-main-idea-3}, so we move an arbitrary vertex in the unexplored pile to the frontier pile.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B)[blue] [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D) [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \para
+  The frontier pile is not empty.
+  This matches \ref{para:graph-exploration-algorithms-main-idea-4}.
+  $B$ is adjacent to an explored vertex (e.g., $A$) so we move $A$ to the frontier pile.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[blue] {$A$};
+        \node (B)[blue] [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D) [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \para
+  The frontier pile is not empty.
+  This matches \ref{para:graph-exploration-algorithms-main-idea-4}.
+  $B$ is added to the frontier pile first, so we choose to explore it.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[blue] {$A$};
+        \node (B)[blue] [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \para
+  The frontier pile is not empty.
+  This matches \ref{para:graph-exploration-algorithms-main-idea-4}.
+  Since $B$ is not adjacent to any unexplored vertex, we can move it to the explored pile.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[blue] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  %
+
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[blue] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[red] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  %
+
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[gray] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[red] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  %
+
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[gray] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[blue] [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[red] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge[red] (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  %
+
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[gray] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[blue] [right of= C] {$E$};
+        \node (F)[blue] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[red] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[red] (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  \para
+  At this point, the unexplored pile is empty, so we have reached the base case \ref{para:graph-exploration-algorithms-main-idea-2}.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[gray] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[gray] [below right of= A] {$C$};
+        \node (D)[gray] [right of= B] {$D$};
+        \node (E)[gray] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[red] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge[gray] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[red] (F);
+        \path (E) edge[gray] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\begin{eg}
+  \label{eg:dfs-example}
+  Run DFS on the same graph defined in \cref{eg:bfs-example}.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C) [below right of= A] {$C$};
+        \node (D) [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \para
+  This time, let us arbitrarily pick the vertex $C$.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D) [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  %
+  
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E) [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge[red] (D);
+        \path (D) edge (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  \para
+  Since $D$ is added after $C$, we need to explore $D$ first.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[blue] [right of= C] {$E$};
+        \node (F) [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge (F);
+        \path (E) edge (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  %
+ 
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[blue] [right of= C] {$E$};
+        \node (F)[blue] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  % 
+  \para
+  At this point, $F$ has been fully explored.
+  We backtrack until we find a vertex that has not been fully explored.
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[blue] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[gray] (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  % 
+  
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B) [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[gray] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[gray] (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  
+  % 
+  
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A) {$A$};
+        \node (B)[blue] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[gray] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge (B);
+        \path (A) edge (C);
+        \path (B) edge[red] (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[gray] (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  % 
+  
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[blue] {$A$};
+        \node (B)[blue] [above right of= A] {$B$};
+        \node (C)[blue] [below right of= A] {$C$};
+        \node (D)[blue] [right of= B] {$D$};
+        \node (E)[gray] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge (C);
+        \path (B) edge[red] (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[gray] (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  
+  % 
+  
+  \begin{center}
+    \begin{tikzpicture}[node distance= 2cm]
+      \begin{scope}[every node/.style={circle,thick,draw}]
+        \node (A)[gray] {$A$};
+        \node (B)[gray] [above right of= A] {$B$};
+        \node (C)[gray] [below right of= A] {$C$};
+        \node (D)[gray] [right of= B] {$D$};
+        \node (E)[gray] [right of= C] {$E$};
+        \node (F)[gray] [below right of= D] {$F$};
+      \end{scope}
+      \begin{scope}
+        [every edge/.style={draw= black, very thick},
+        every node/.style={fill= white,circle}]
+        \path (A) edge[red] (B);
+        \path (A) edge[gray] (C);
+        \path (B) edge[red] (D);
+        \path (C) edge[red] (D);
+        \path (D) edge[red] (E);
+        \path (D) edge[gray] (F);
+        \path (E) edge[red] (F);
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+\end{eg}
+
+\end{document}

@@ -1,0 +1,476 @@
+\documentclass{amsart}
+\input{decls}
+\title{Proofs}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Proofs}
+\label{sec:proofs}
+
+Logical symbols are explained by (1) how to prove it (introduction) and (2) how to use it (elimination).
+We use the capital Greek letter $\Gamma$ to denote a list of hypotheses.
+A hypothesis is just a formula.
+The order and the number of occurrence of a given formula do not matter.
+For example,
+\begin{mathpar}
+  \varphi, \psi, \chi \and \psi, \varphi, \chi \and \varphi, \varphi, \psi, \chi
+\end{mathpar}
+are considered to be the same set of hypotheses.
+
+We write
+\[
+  \Gamma \vdash \varphi
+\]
+to mean ``the hypotheses in $\Gamma$ \emph{entail} $\varphi$''.
+
+\subsection{Rules}
+\label{sec:rules}
+
+The simplest rule is the \emph{identity rule}.
+It says that we can conclude $\varphi$ if it is already part of the set of hypotheses.
+
+\begin{mathpar}
+  \inferrule[Id]
+  { }
+  { \Gamma,\varphi \vdash \varphi }
+\end{mathpar}
+
+We are going to allow ourselves to do the following rewrites:
+\begin{mathpar}
+  \neg \varphi \equiv \varphi \imp \bot\and \neg (\neg \varphi) \equiv \varphi
+\end{mathpar}
+
+\subsubsection{Top}
+\label{sec:top}
+
+We can always derive $\top$, but because we can't use $\top$ in any meaningful way, it has no elimination rules.
+\begin{mathpar}
+  \inferrule[$\top$-Intro]
+  { }
+  { \Gamma \vdash \top }
+\end{mathpar}
+
+\subsubsection{Conjunction}
+\label{sec:conjunction}
+
+Conjunctions behave like pairs.
+To construct a pair, we need two elements (the first element and the second element).
+It has two elimination rules, one extracts the first element and the other extracts the second element.
+\begin{mathpar}
+  \inferrule[$\wedge$-Intro]
+  { \Gamma \vdash \varphi \\ \Gamma \vdash \psi }
+  { \Gamma \vdash \varphi \wedge \psi }\and
+
+  \inferrule[$\wedge$-Elim-L]
+  { \Gamma \vdash \varphi \wedge \psi }
+  { \Gamma \vdash \varphi }\and
+
+  \inferrule[$\wedge$-Elim-R]
+  { \Gamma \vdash \varphi \wedge \psi }
+  { \Gamma \vdash \psi }
+\end{mathpar}
+
+\paragraph{Proof Script}
+\begin{enumerate}
+\item To prove $\varphi \wedge \psi$: we need to prove both $\varphi$ and $\psi$.
+\item To use $\varphi \wedge \psi$: since $\varphi \wedge \psi$, we may assume both $\varphi$ and $\psi$.
+\end{enumerate}
+
+\subsubsection{Implication}
+\label{sec:implication}
+
+Implications behave like functions.
+If I can write a program $\psi$ with input $\varphi$, then I can abstract the input to get a function.
+The elimination rule is also known as \emph{modus ponens}.
+It is function application.
+\begin{mathpar}
+  \inferrule[$\imp$-Intro]
+  { \Gamma, \varphi \vdash \psi }
+  { \Gamma \vdash \psi \imp \psi }\and
+
+  \inferrule[$\imp$-Elim]
+  { \Gamma \vdash \varphi \imp \psi \\ \Gamma \vdash \varphi }
+  { \Gamma \vdash \psi }
+\end{mathpar}
+
+\paragraph{Proof Script}
+\begin{enumerate}
+\item To prove $\varphi \imp \psi$: suppose that $\varphi$ ... therefore $\psi$.
+\item To use $\varphi \imp \psi$: since $\varphi \imp \psi$, to prove $\psi$ it suffices to prove $\varphi$.
+\end{enumerate}
+
+\subsubsection{Universal Quantification}
+\label{sec:universal-quantification}
+
+\begin{mathpar}
+  \inferrule[$\forall$-Intro]
+  { \Gamma \vdash \varphi }
+  { \Gamma \vdash \forall x.\varphi }(x \notin \mathrm{FV}(\Gamma))\and
+
+  \inferrule[$\forall$-Elim]
+  { \Gamma \vdash \forall x.\varphi }
+  { \Gamma \vdash \varphi[t/x] }
+\end{mathpar}
+Note that the side condition is crucial.
+Say, one of the hypotheses is ``$x$ is even'' from which we can prove $x$ is divisible by $2$.
+It's incorrect to infer that for all $x$, $x$ is divisible by $2$ because the hypotheses constrain $x$ to even numbers.
+
+\paragraph{Proof Script}
+\begin{enumerate}
+\item To prove $\forall x. \varphi$: let $x$ be given, ... therefore $\varphi$.
+\item To use $\forall x. \varphi$: since $\forall x. \varphi$, $\varphi[t/x]$.
+\end{enumerate}
+
+\subsubsection{Bottom}
+\label{sec:bottom}
+
+Bottom does not have an introduction rule but it has a powerful elimination rule.
+The elimination rule is also known as \emph{ex falso quodlibet}.
+\begin{mathpar}
+  \inferrule[$\bot$-Elim]
+  { \Gamma \vdash \bot }
+  { \Gamma \vdash \varphi }
+\end{mathpar}
+
+\subsubsection{Disjunction}
+\label{sec:disjunction}
+
+Disjunctions behave like tagged unions.
+Its elimination rule is the \texttt{if ... then ... else ...} construct in programming languages.
+\begin{mathpar}
+  \inferrule[$\vee$-Intro-L]
+  { \Gamma \vdash \varphi }
+  { \Gamma \vdash \varphi \vee \psi }\and
+
+  \inferrule[$\vee$-Intro-R]
+  { \Gamma \vdash \psi }
+  { \Gamma \vdash \varphi \vee \psi }\and
+
+  \inferrule[$\vee$-Elim]
+  { \Gamma \vdash \varphi \vee \psi \\ \Gamma,\varphi \vdash \chi \\ \Gamma,\psi \vdash \chi }
+  { \Gamma \vdash \chi }
+\end{mathpar}
+
+\paragraph{Proof Script}
+\begin{enumerate}
+\item To prove $\varphi \vee \psi$: prove either $\varphi$ or $\psi$.
+\item To use $\varphi \vee \psi$: case analysis.
+\end{enumerate}
+
+\subsubsection{Existential Quantification}
+\label{sec:existential-quantification}
+
+\begin{mathpar}
+  \inferrule[$\exists$-Intro]
+  { \Gamma \vdash \varphi[t/x] }
+  { \Gamma \vdash \exists x.\varphi }\and
+
+  \inferrule[$\exists$-Elim]
+  { \Gamma \vdash \exists x.\varphi }
+  { \Gamma \vdash \varphi[y/x] }(y \notin \mathrm{FV}(\Gamma))
+\end{mathpar}
+The side condition in the elimination rule is crucial because $\exists x.\varphi$ contains a \emph{witness} that we know nothing about so the set of hypotheses $\Gamma$ cannot assume anything about it.
+
+\paragraph{Proof Script}
+\begin{enumerate}
+\item To prove $\exists x.\varphi$: find a witness $t$ for which $\varphi[t/x]$ holds.
+\item To use $\exists x.\varphi$: we get a hypothetical witness $y$ that we don't know anything about and $\varphi[y/x]$ holds.
+\end{enumerate}
+
+\section{Examples}
+\label{sec:examples}
+
+\begin{eg}\label{eg:contraposition-1}
+  \[
+    (\varphi \imp \psi) \imp (\neg \psi \imp \neg \varphi)
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  Suppose $\varphi \imp \psi$.
+  We need to prove $\neg \psi \imp \neg \varphi$.
+  Suppose $\neg \psi$.
+  We need to prove $\neg \varphi$.
+  Suppose $\varphi$.
+  We need to prove $\bot$.
+  Since we know $\neg \psi$, it suffices to prove $\psi$.
+  Since we know $\varphi \imp \psi$, it suffices to prove $\varphi$, which is already a hypothesis.
+\end{proof}
+
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Intro]
+    { \inferrule*[Left=$\imp$-Intro]
+      { \inferrule*[Left=$\imp$-Intro]
+        { \inferrule*[Left=$\imp$-Elim]
+          { \inferrule*[Left=Id]
+            {  }
+            { \varphi \imp \psi, \neg \psi, \varphi \vdash \neg \psi }\\
+            \Delta
+          }
+          { \varphi \imp \psi, \neg \psi, \varphi \vdash \bot }
+        }
+        { \varphi \imp \psi, \neg \psi \vdash \neg \varphi }
+      }
+      { \varphi \imp \psi \vdash \neg \psi \imp \neg \varphi }
+    }
+    { \vdash (\varphi \imp \psi) \imp (\neg \psi \imp \neg \varphi) }
+  \end{mathpar}
+  where $\Delta =$
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Elim]
+    { \inferrule*[left=Id]
+      {  }
+      { \varphi \imp \psi, \neg \psi, \varphi \vdash \varphi \imp \psi }\\
+      \inferrule*[Right=Id]
+      {  }
+      { \varphi \imp \psi, \neg \psi, \varphi \vdash \varphi }
+    }
+    { \varphi \imp \psi, \neg \psi, \varphi \vdash \psi }
+  \end{mathpar}
+\end{proof}
+
+\begin{eg}\label{eg:contraposition-2}
+  \[
+    (\neg \psi \imp \neg \varphi) \imp (\varphi \imp \psi)
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  Assume $\neg \psi \imp \neg \varphi$.
+  We need to prove $\varphi \imp \psi$.
+  Assume $\varphi$, or equivalently $\neg (\neg \varphi)$.
+  We need to prove $\psi$, or equivalently $\neg (\neg \psi)$.
+  Assume $\neg \psi$.
+  We need to prove $\bot$.
+  Since we know $\neg (\neg \varphi)$, it suffices to show $\neg \varphi$.
+  Since we know $\neg \psi \imp \neg \varphi$, it suffices to show $\neg \psi$, which is already a hypothesis.
+\end{proof}
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Intro]
+    { \inferrule*[Left=$\imp$-Intro]
+      { \inferrule*[Left=$\imp$-Intro]
+        { \inferrule*[Left=$\imp$-Elim]
+          { \Delta\\
+            \inferrule*[Right=$\imp$-Elim]
+            { \inferrule*[left=Id]
+              {  }
+              { \neg \psi \imp \neg \varphi, \neg (\neg \varphi), \neg \psi \vdash \neg \psi \imp \neg \varphi }\\
+              \Xi
+            }
+            { \neg \psi \imp \neg \varphi, \neg (\neg \varphi), \neg \psi \vdash \neg \varphi }
+          }
+          { \neg \psi \imp \neg \varphi, \neg (\neg \varphi), \neg \psi \vdash \bot }
+        }
+        { \neg \psi \imp \neg \varphi, \varphi \vdash \neg (\neg \psi) }
+      }
+      { \neg \psi \imp \neg \varphi \vdash \varphi \imp \psi }
+    }
+    { \vdash (\neg \psi \imp \neg \varphi) \imp (\varphi \imp \psi) }
+  \end{mathpar}
+  where $\Delta =$
+  \begin{mathpar}
+    \inferrule*[Left=Id]
+    {  }
+    { \neg \psi \imp \neg \varphi, \neg (\neg \varphi), \neg \psi \vdash \neg (\neg \varphi) }
+  \end{mathpar}
+  and $\Xi =$
+  \begin{mathpar}
+    \inferrule*[Left=Id]
+    {  }
+    { \neg \psi \imp \neg \varphi, \neg (\neg \varphi), \neg \psi \vdash \neg \psi }
+  \end{mathpar}
+\end{proof}
+
+\begin{eg}
+  \[
+    \neg (\varphi \vee \psi) \imp \neg \varphi \wedge \neg \psi
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  Suppose that $\neg (\varphi \vee \psi)$.
+  We need to prove $\neg \varphi \wedge \neg \psi$.
+  It suffices to prove $\neg \varphi$ and $\neg \psi$ separately.
+
+  \begin{enumerate}
+  \item Proof of $\neg \varphi$: Assume $\varphi$, we need to prove $\bot$.
+    Since we know that $\neg (\varphi \vee \psi)$, it suffices to prove $\varphi \vee \psi$, which follows immediately from $\varphi$.
+  \item Proof of $\neg \psi$: Assume $\psi$, we need to prove $\bot$.
+    Since we know that $\neg (\varphi \vee \psi)$, it suffices to prove $\varphi \vee \psi$, which follows immediately from $\psi$.
+  \end{enumerate}
+\end{proof}
+
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[left=$\imp$-Intro]
+    { \inferrule*[Left=$\wedge$-Intro]
+      { \inferrule*[Left=$\imp$-Intro]
+        { \inferrule*[Left=$\imp$-Elim]
+          { \inferrule*[Left=Id]
+            {  }
+            { \neg (\varphi \vee \psi), \varphi \vdash \neg (\varphi \vee \psi) }\\
+            \Delta
+          }
+          { \neg (\varphi \vee \psi), \varphi \vdash \bot }
+        }
+        { \neg (\varphi \vee \psi) \vdash \neg \varphi }\\
+        \inferrule*[Right=$\imp$-Intro]
+        { \Xi }
+        { \neg (\varphi \vee \psi) \vdash \neg \psi }
+      }
+      { \neg (\varphi \vee \psi) \vdash \neg \varphi \wedge \neg \psi }
+    }
+    { \vdash \neg (\varphi \vee \psi) \imp \neg \varphi \wedge \neg \psi }
+  \end{mathpar}
+  where $\Delta =$
+  \begin{mathpar}
+    \inferrule*[Left=$\vee$-Intro-L]
+    { \inferrule*[Left=Id]
+      {  }
+      { \neg (\varphi \vee \psi), \varphi \vdash \varphi }
+    }
+    { \neg (\varphi \vee \psi), \varphi \vdash \varphi \vee \psi }
+  \end{mathpar}
+  and $\Xi =$
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Elim]
+    { \inferrule*[Left=Id]
+      {  }
+      { \neg (\varphi \vee \psi), \psi \vdash \neg (\varphi \vee \psi) }\\
+      \inferrule*[Right=$\vee$-Intro-R]
+      { \inferrule*[Right=Id]
+        {  }
+        { \neg (\varphi \vee \psi), \psi \vdash \psi }
+      }
+      { \neg (\varphi \vee \psi), \psi \vdash \varphi \vee \psi }
+    }
+    { \neg (\varphi \vee \psi), \psi \vdash \bot }
+  \end{mathpar}
+\end{proof}
+
+\begin{eg}
+  \[
+    \forall x.\varphi \imp \exists x.\varphi
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  Suppose that $\forall x.\varphi$.
+  We need to prove $\exists x.\varphi$.
+  It suffices to find a witness $t$ so that $\varphi[t/x]$.
+  Since we know $\forall x.\varphi$, any witness works.
+\end{proof}
+
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Intro]
+    { \inferrule*[Left=$\exists$-Intro]
+      { \inferrule*[Left=$\forall$-Elim]
+        { \inferrule*[Left=Id]
+          {  }
+          { \forall x.\varphi \vdash \forall x.\varphi }
+        }
+        { \forall x.\varphi \vdash \varphi[t/x] }
+      }
+      { \forall x.\varphi \vdash \exists x.\varphi }
+    }
+    { \vdash \forall x.\varphi \imp \exists x.\varphi }
+  \end{mathpar}
+\end{proof}
+
+\begin{eg}
+  \[
+    \neg (\exists x.\varphi) \imp \forall x.\neg \varphi
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  Suppose $\neg \exists x.\varphi$.
+  We need to prove $\forall x.\neg \varphi$.
+  Let any $x$ be given.
+  We need to prove $\neg \varphi$.
+  Suppose $\varphi$.
+  We need to prove $\bot$.
+  Since we know $\neg \exists x.\varphi$, it suffices to prove $\exists x.\varphi$.
+  Since we already know $\varphi$, we can choose $x$ as the witness.
+\end{proof}
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Intro]
+    { \inferrule*[Left=$\imp$-Intro]
+      { \inferrule*[Left=$\imp$-Intro]
+        { \inferrule*[Left=$\imp$-Elim]
+          { \inferrule*[Left=Id]
+            {  }
+            { \neg (\exists x.\varphi), \varphi \vdash \neg (\exists x.\varphi) }\\
+            \inferrule*[Right=$\exists$-Intro]
+            { \inferrule*[Right=Id]
+              {  }
+              { \neg (\exists x.\varphi), \varphi \vdash \varphi[x/x] }
+            }
+            { \neg (\exists x.\varphi), \varphi \vdash \exists x.\varphi }
+          }
+          { \neg (\exists x.\varphi), \varphi \vdash \bot }
+        }
+        { \neg (\exists x.\varphi) \vdash \neg \varphi }
+      }
+      { \neg (\exists x.\varphi) \vdash \forall x.\neg \varphi }
+    }
+    { \vdash \neg (\exists x.\varphi) \imp \forall x.\neg \varphi }
+  \end{mathpar}
+\end{proof}
+
+\begin{eg}
+  \[
+    \neg (\forall x. \varphi) \imp \exists x. \neg \varphi
+  \]
+\end{eg}
+\begin{proof}[Proof 1]
+  By \cref{eg:contraposition-2}, it suffices to prove $\neg \exists x. \neg \varphi \imp \neg (\neg \forall x. \varphi)$, or equivalently, $\neg \exists x. \neg \varphi \imp \forall x. \varphi$.
+  Assume $\neg \exists x. \neg \varphi$.
+  We need to prove $\forall x. \varphi$.
+  Let any $x$ be given.
+  We need to prove $\varphi$, or equivalently $\neg (\neg \varphi)$.
+  Assume $\neg \varphi$, we need to prove $\bot$.
+  Since we know $\neg \exists x. \neg \varphi$, it suffices to prove $\exists x. \neg \varphi$.
+  Since we know $\neg \varphi$, choosing $x$ as the witness completes the proof.
+\end{proof}
+\begin{proof}[Proof 2]
+  \begin{mathpar}
+    \inferrule*[Left=$\imp$-Elim]
+    { \Delta\\
+      \inferrule*[Right=$\imp$-Intro]
+      { \inferrule*[Right=$\imp$-Intro]
+        { \inferrule*[Right=$\imp$-Intro]
+          { \inferrule*[Right=$\imp$-Elim]
+            { \inferrule*[Left=Id]
+              {  }
+              { \neg \exists x.\neg \varphi, \neg \varphi \vdash \neg \exists x.\neg \varphi }\\
+              \inferrule*[Right=$\exists$-Intro]
+              { \inferrule*[Right=Id]
+                {  }
+                { \neg \exists x.\neg \varphi, \neg \varphi \vdash \neg \varphi[x/x] }
+              }
+              { \neg \exists x.\neg \varphi, \neg \varphi \vdash \exists x. \neg \varphi }
+            }
+            { \neg \exists x.\neg \varphi, \neg \varphi \vdash \bot }
+          }
+          { \neg \exists x.\neg \varphi \vdash \neg (\neg \varphi) }
+        }
+        { \neg \exists x.\neg \varphi \vdash \forall x.\varphi }
+      }
+      { \vdash \neg \exists x.\neg \varphi \imp \forall x.\varphi }
+    }
+    { \vdash \neg (\forall x. \varphi) \imp \exists x. \neg \varphi }
+  \end{mathpar}
+  where $\Delta =$
+  \begin{mathpar}
+    \inferrule*[]
+    { \vdots }
+    { \vdash (\neg (\exists x.\neg \varphi) \imp \forall x.\varphi) \imp \neg (\forall x. \varphi) \imp \exists x. \neg \varphi }
+  \end{mathpar}
+  follows from \cref{eg:contraposition-2}.
+\end{proof}
+
+\end{document}

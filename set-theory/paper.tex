@@ -1,0 +1,251 @@
+\documentclass{amsart}
+\input{decls}
+\title{Basic Set Theory}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Sets}
+\label{sec:sets}
+
+Set theory made its debut in Cantor's 1874 paper: ``On a Property of the Collection of All Real Algebraic Numbers.''
+Later, mathematicians such as Russell realized that the Cantorian set theory contained several contradictions, but mathematicians did not abandon set theory.
+The work of Zermelo, Fraenkel, and Skolem resulted in a well-known axiomatization of set theory.
+
+In this class, we will not talk about axiomatic set theory.
+Instead, we will look at set theory na\"ively.
+
+\begin{defn}
+  A \emph{set} is a collection of elements.
+  These elements have no internal structures, so you can think of a set as a collection of dots.
+
+  The language of (ZF) set theory contains a binary predicate symbol $\in$.
+  This is known as the \emph{membership relation}.
+  $x \in y$ means $x$ is an element of $y$.
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item The empty set: $\varnothing$.
+  \item The set containing the empty set: $\{\varnothing\}$.
+  \item A set containing 3 elements: $\{ a,b,c \}$.
+  \item The set of all natural numbers: $\dN = \{ 0,1,2,\ldots \}$.
+  \item The set of all integers: $\dZ = \{ \ldots,-2,-1,0,1,2,\ldots \}$.
+  \item The set containing $\dN$ and $\dZ$: $\{ \dN,\dZ \}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item Nothing is in the empty set: $x \notin \varnothing$.
+  \item The set containing the empty set has an element: $\varnothing \in \{\varnothing\}$.
+  \item $a \in \{ a, b, c \}$, $b \in \{ a, b, c \}$, $c \in \{ a, b, c \}$.
+  \item $\dN \in \{ \dN, \dZ \}$, $\dZ \in \{ \dN, \dZ \}$, but $0 \notin \{ \dN,\dZ \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Subsets}
+\label{sec:subsets}
+
+\begin{defn}
+  A set $x$ is a subset of $y$, denoted $x \subseteq y$, if every element in $x$ is also in $y$.
+  \[
+    x \subseteq y \cng \forall z.(z \in x \imp z \in y)
+  \]
+  The relation $\subseteq$ is called \emph{set inclusion}.
+\end{defn}
+
+\begin{lem}
+  The empty set is a subset of any set.
+  \[
+    \forall y.\,\varnothing \subseteq y
+  \]
+\end{lem}
+\begin{proof}
+  Let $y$ be any set.
+  By definition, $\varnothing \subseteq y \cng \forall z.(z \in \varnothing \imp z \in y)$.
+  Let $z$ be given.
+  Assume that $z \in \varnothing$, but this is impossible since $z \notin \varnothing$.\footnote{This is not a proof by contradiction, but let's ignore the details for now.}
+\end{proof}
+
+\begin{lem}
+  Every set is a subset of itself.
+  \[
+    \forall x.\, x \subseteq x
+  \]
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\begin{eg}\label{eg:subsets}
+  \begin{enumerate}
+  \item[]
+  \item $\varnothing$ has a subset $\varnothing$.
+  \item $\{ \varnothing \}$ has subsets $\varnothing$ and $\{ \varnothing \}$.
+  \item $\{ a,b \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, and $\{ a, b \}$.
+  \item $\{ a,b,c \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, $\{ c \}$, $\{ a,b \}$, $\{ a,c \}$, $\{ b,c \}$, and $\{ a,b,c \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Equality}
+\label{sec:equality}
+
+Two sets are equal when they contain the same elements.
+We can express this in terms of the set inclusion relation.
+\[
+  \forall x. \forall y. ((x \subseteq y \wedge y \subseteq x) \imp x = y)
+\]
+Given two sets $x$ and $y$, to prove that $x = y$, it suffices to prove $x \subseteq y$ and $y \subseteq x$.
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item $\{a,b,c,d,d\} = \{a,b,c,d\}$.
+  \item $\{a,b,c\} = \{c,b,a\}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Comprehension}
+\label{sec:comprehension}
+
+Given a set $w$, there is a set of $w$ whose elements satisfy certain property $\varphi$.
+\[
+  \{ x \in w \mid \varphi(x) \}
+\]
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item The set of all even natural numbers: $\{ x \in \dN \mid \mathrm{even}(x) \}$.
+  \item The set of all odd natural numbers: $\{ x \in \dN \mid \mathrm{odd}(x) \}$.
+  \item The set of all integers divisible by 2: $\{ x \in \dZ \mid x \cng 0 \mod 2 \}$.
+  \item The set of all real numbers between $0$ and $1$ (inclusive): $\{ x \in \dR \mid 0 \leq x \leq 1 \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Power Set}
+\label{sec:power-set}
+
+In \cref{eg:subsets}, $\{ a,b,c \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, $\{ c \}$, $\{ a,b \}$, $\{ a,c \}$, $\{ b,c \}$, and $\{ a,b,c \}$.
+These subsets form a set
+\[
+  \{ \varnothing, \{ a \}, \{ b \}, \{ c \}, \{ a,b \}, \{ a,c \}, \{ b,c \}, \{ a,b,c \} \}
+\]
+
+\begin{defn}
+  Let $x$ be a set.
+  The \emph{power set} of $x$, denoted $\cP(x)$, is the set of all subsets of $x$.
+\end{defn}
+
+
+\begin{eg}\label{eg:subsets}
+  \begin{enumerate}
+  \item[]
+  \item $\cP(\varnothing) = \{\varnothing\}$.
+  \item $\cP(\{ \varnothing \}) = \{\varnothing, \{\varnothing\}\}$.
+  \item $\cP(\{\varnothing, \{\varnothing\}\}) = \{ \varnothing, \{\varnothing\}, \{\{\varnothing\}\}, \{\varnothing, \{\varnothing\}\} \}$.
+  \item $\cP(\{ a,b,c \}) = \{ \varnothing, \{ a \}, \{ b \}, \{ c \}, \{ a,b \}, \{ a,c \}, \{ b,c \}, \{ a,b,c \} \}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{thm}[Cantor's Theorem]
+  For any set $x$, there is no surjective function $f : x \to \cP(x)$.
+\end{thm}
+
+\section{Union}
+\label{sec:union}
+
+\begin{defn}
+  Given a nonempty set of sets $\cF$, the \emph{union}, denoted $\cup\cF$, is a set whose elements are those elements of \emph{some} set in $\cF$.
+  \footnote{The Axiom of Union does not assert the existence of $\cup\cF$ directly.
+    It only asserts that there is always a set $E$ that contains \emph{at least} those elements of some set in $\cF$.
+    One can then define $\cup\cF$ using comprehension: $\cup\cF = \{ x \in E \mid \exists y.\,(y \in \cF \wedge x \in y) \}$.
+  }
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item If $\cF = \{\{1,2,3\},\{a,b,c\}\}$ then $\cup\cF = \{1,2,3,a,b,c\}$.
+  \item If $\cF = \{\{a,b,c\},\{b,c,d\},\{c,d,e\}\}$ then $\cup\cF = \{a,b,c,d,e\}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{notn}
+  When $\cF$ has just a few elements, for example $\cF = \{\{1,2,3\},\{a,b,c\}\}$, we write
+  \[
+    \{1,2,3\} \cup \{a,b,c\}
+  \]
+  for $\cup\cF$.
+\end{notn}
+
+Indeed, the union of any two sets can be expressed in terms of comprehension (see footnote):
+\[
+  x \cup y = \{ z \in E \mid z \in x \vee z \in y \}
+\]
+
+\section{Intersection}
+\label{sec:intersection}
+
+\begin{defn}
+  Given a nonempty set of sets $\cF$, the \emph{intersection}, denoted $\cap\cF$, is a set whose elements are those elements of \emph{every} set in $\cF$.
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item If $\cF = \{\{1,2,3\},\{a,b,c\}\}$ then $\cap\cF = \varnothing$.
+  \item If $\cF = \{\{a,b,c\},\{b,c,d\},\{c,d,e\}\}$ then $\cap\cF = \{c\}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{notn}
+  When $\cF$ has just a few elements, for example $\cF = \{\{1,2,3\},\{a,b,c\}\}$, we write
+  \[
+    \{1,2,3\} \cap \{a,b,c\}
+  \]
+  for $\cap\cF$.
+\end{notn}
+
+The intersection of any two sets can be expressed in terms of union and comprehension:
+\[
+  x \cap y = \{z \in x \cup y \mid z \in x \wedge z \in y\}
+\]
+
+\begin{defn}
+  Two sets $x$ and $y$ are said to be \emph{disjoint} if $x \cap y = \varnothing$.
+\end{defn}
+
+\section{Set Difference}
+\label{sec:set-difference}
+
+\begin{defn}
+  Given two sets $x$ and $y$, the \emph{set difference}, denoted $x \setminus y$ (sometimes $x - y$), is a set containing exactly those elements in $x$ but not in $y$.
+  That is,
+  \[
+    x \setminus y = \{z \in x \mid z \in x \wedge z \notin y\}
+  \]
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item $\{1,2,3\} \setminus \{a,b,c\} = \{1,2,3\}$.
+  \item $\{a,b,c\} \setminus \{1,2,3\} = \{a,b,c\}$.
+  \item $\{a,b,c\} \setminus \{c,d,e\} = \{a,b\}$.
+  \item $\{c,d,e\} \setminus \{a,b,c\} = \{d,e\}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{defn}
+  Let $x \subseteq y$.
+  The \emph{complement} of $x$, denoted $x^{\ic}$, is the set $y \setminus x$.
+\end{defn}
+
+\end{document}

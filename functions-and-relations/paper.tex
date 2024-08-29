@@ -1,0 +1,372 @@
+\documentclass{amsart}
+\input{decls}
+\title{Functions and Relations}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Relations}
+\label{sec:relations}
+
+\begin{defn}
+  An $n$-ary \emph{relation} $R$ on a set $S$ can be encoded as a subset:
+  \[
+    R \subseteq S^{n}
+  \]
+  We write $R(a,\ldots,z)$ whenever $(a,\ldots,z) \in R$.
+  Binary relations will be the main focus of this class.
+  For these relations, it is customary to use infix notations.
+  That is, we write $aRb$ instead of $R(a,b)$.
+\end{defn}
+
+\begin{eg}
+  The substring relation $\sqsubseteq$ on $\{a,b\}^{*}$ is the subset
+  \[
+    \{(\varepsilon,\varepsilon), (\varepsilon, a), \ldots, (a, a), (a, ab), (a, ba), \ldots\}
+  \]
+\end{eg}
+
+\begin{eg}
+  The divisibility relation $\mid$ on $\dZ$ is defined by
+  \[
+    a \mid b \iff \exists c.\,b = ac
+  \]
+  It is the subset
+  \[
+    \{(a,b) \in \dZ \times \dZ \mid \exists c.\,b = ac\}
+  \]
+\end{eg}
+
+\begin{eg}
+  The adjacency relation on a simple graph: two vertices $u$ are $v$ are adjacent if they are connected by an edge.
+  It is the subset
+  \[
+    \{(u,v) \in V \times V \mid (u, v) \in E \vee (v, u) \in E\}
+  \]
+\end{eg}
+
+\begin{defn}[Reflexivity]
+  A binary relation $R$ on a set $S$ is \emph{reflexive} if every element of $S$ is related to itself by $R$.
+  \[
+    \forall a.\,aRa
+  \]
+\end{defn}
+
+\begin{eg}
+  The divisibility relation on $\dZ$ is reflexive because every integer divides into itself once.
+\end{eg}
+
+\begin{defn}[Symmetry]
+  A binary relation $R$ on a set $S$ is \emph{symmetric} if whenever $a$ is related to $b$ by $R$, then $b$ is also related to $a$ by $R$.
+  \[
+    \forall a.\forall b.\,(aRb \imp bRa)
+  \]
+\end{defn}
+
+\begin{eg}
+  The adjacency relation on a simple graph is symmetric.
+  If a vertex $u$ is adjacent to another vertex $v$, then $v$ is also adjacent to $u$.
+\end{eg}
+
+\begin{defn}[Transitivity]
+  A binary relation $R$ on a set $S$ is \emph{transitive} if for any three elements $a,b,c$ of $S$, if $aRb$ and $bRc$ then $aRc$.
+  \[
+    \forall a.\forall b.\forall c.\,(aRb \wedge bRc \imp aRc)
+  \]
+\end{defn}
+
+\begin{eg}
+  The substring relation on $\{a,b\}^{*}$ is transitive.
+  In fact, it is also reflexive, but it is not symmetric.
+\end{eg}
+
+\begin{defn}[Equivalence Relation]
+  A binary relation $R$ on a set $S$ is an \emph{equivalence relation} if it is
+  \begin{enumerate}
+  \item reflexive,
+  \item symmetric, and
+  \item transitive.
+  \end{enumerate}
+\end{defn}
+
+\begin{prop}\label{prop:cng-mod-equiv}
+  The congruence-modulo-2 relation on $\dZ$ is defined by
+  \[
+    a \cng b \mod{2} \iff 2 \mid (a - b)
+  \]
+  It is an equivalence relation.
+\end{prop}
+\begin{proof}
+  (Reflexivity). Let $a$ be any integer.
+  We need to prove that $a \cng a \mod{2}$.
+  By definition, this is equivalent to proving $2 \mid (a - a)$, or equivalently, $2 \mid 0$.
+  By definition again, this is equivalent to $\exists c.\,0 = 2c$.
+  Setting $c := 0$ yields $0 = 2 \cdot 0 = 0$ as desired.
+
+  (Symmetry). Let $a, b$ be any integers.
+  Assume that $a \cng b \mod{2}$.
+  By definition, this hypothesis asserts that there's an integer $c$ so that $a - b = 2c$.
+  We need to prove $\exists k.\,b - a = 2k$.
+  Setting $k := -c$ yields $b - a = -(a - b) = -2c = 2(-c)$ as desired.
+
+  (Transitivity). Let $a, b, c$ be any integers.
+  Assume that $a \cng b \mod{2}$ and that $b \cng c \mod{2}$.
+  By definition, these two hypotheses assert that there are integers $n, m$ so that $a - b = 2n$ and $b - c = 2m$.
+  We need to show that $\exists k.\,a - c = 2k$.
+  Setting $k := n + m$ yields $2(n + m) = 2n + 2m = (a - b) + (b - c) = a - b + b - c = a - c$ as desired.
+\end{proof}
+
+\begin{defn}[Antisymmetry]
+  A binary relation $R$ on a set $S$ is \emph{antisymmetric} if for any two elements $a, b$ of $S$, if $aRb$ and $bRa$ then $a = b$.
+\end{defn}
+
+\begin{eg}
+  The subset relation $\subseteq$ on $\cP(S)$ is antisymmetric.
+  Recall that two sets $A$ and $B$ are equal precisely when $A \subseteq B$ and $B \subseteq A$.
+\end{eg}
+
+\begin{rmk}
+  Antisymmetry does \textbf{not} imply \textbf{a}symmetry.
+  For example, the indiscrete relation $I$ on the singleton set $\{a\}$, defined as
+  \[
+    I = \{(a,a)\}
+  \]
+  is both antisymmetric and symmetric.
+\end{rmk}
+
+\begin{defn}[Preorder]
+  A binary relation is a \emph{preorder} if it is
+  \begin{enumerate}
+  \item reflexive, and
+  \item transitive.
+  \end{enumerate}
+\end{defn}
+
+\begin{defn}[Partial Order]
+  A \emph{partial order} is a preorder that additionally satisfies antisymmetry.
+\end{defn}
+
+\begin{prop}\label{prop:div-n-partial}
+  The divisibility relation on $\dN$ is a partial order.
+\end{prop}
+\begin{proof}
+  (Reflexivity): Exercise.
+
+  (Transitivity): Exercise.
+  Hint: See \cref{prop:cng-mod-equiv}.
+
+  (Antisymmetry): Let $a, b$ be natural numbers so that $a \mid b$ and $b \mid a$.
+  These hypotheses assert that there are natural numbers $n, m$ so that $b = an$ and that $a = bm$.
+  Thus, $b = (bm)n$.
+  If $b = 0$, then since $a = bm = 0m = 0$, $a = b$ as desired.
+  However, if $b \ne 0$, then $mn = 1$.
+  Since $n, m$ are natural numbers, $n = m = 1$.
+  Thus, $a = b$ as desired.
+\end{proof}
+
+\begin{rmk}
+  \cref{prop:div-n-partial} does not hold if we replace $\dN$ with $\dZ$ because $2 \mid -2$ and $-2 \mid 2$, but $2 \ne -2$.
+  Although the divisibility relation on $\dZ$ is not a partial order, it is a preorder.
+\end{rmk}
+
+\section{Functions}
+\label{sec:functions}
+
+Intuitively, a function is a rule for assigning each element of a set to a unique element of another set.
+In set theory, we can encode functions as special binary relations.
+
+\begin{defn}
+  A binary relation $R \subseteq A \times B$ is (left) \emph{total} if
+  \[
+    \forall a \in A.\exists b \in B.\,(a,b) \in R
+  \]
+\end{defn}
+
+\begin{defn}
+  A binary relation $R \subseteq A \times B$ is \emph{functional} if
+  \[
+    \forall a \in A.\forall b \in B.\forall c \in B.\,((a,b) \in R \wedge (a,c) \in R \imp b = c)
+  \]
+\end{defn}
+
+\begin{defn}
+  A function $f$ from a set $A$ to another set $B$, denoted $f : A \to B$ is a binary relation
+  \[
+    f \subseteq A \times B
+  \]
+  that is \emph{total} and \emph{functional}.
+  We write $f(a) = b$ for $(a,b) \in f$.
+  Writing the two conditions in this notation is perhaps more illuminating:
+  \begin{enumerate}
+  \item Totality:
+    \[
+      \forall a \in A.\exists b \in B.\,f(a) = b
+    \]
+  \item Functionality:
+    \[
+      \forall a \in A.\forall b \in B.\forall c \in B.\,(f(a) = b \wedge f(a) = c \imp b = c)
+    \]
+  \end{enumerate}
+  The set $A$ is called the \emph{domain} of $f$, and the set $B$ is called the \emph{codomain} of $f$.
+\end{defn}
+
+\begin{thm}[Functional Extensionality]
+  Two functions $f,g : A \to B$ are equal if and only if $f(a) = g(a)$ for all $a \in A$.
+\end{thm}
+\begin{proof}
+  The ``only if'' direction is obvious.
+  For the ``if'' direction, assume that $f(a) = g(a)$ for all $a \in A$.
+  To prove that $f = g$, it suffices to prove $f \subseteq g$ and $g \subseteq f$.
+  Now, suppose that $(a,b) \in f$.
+  Since $f(a) = g(a)$, $(a, g(a)) \in f$.
+  By functionality, $g(a) = b$.
+  Thus, $(a,b) \in g$, proving that $f \subseteq g$.
+  The proof of $g \subseteq f$ is completely analogous.
+\end{proof}
+
+\begin{defn}
+  Given two functions $f : A \to B$ and $g : B \to C$, the composition $g \circ f : A \to C$ (reads ``$g$ after $f$'') is a function defined by
+  \[
+    (g \circ f)(x) = g(f(x))
+  \]
+  Note that $g \circ f$ is defined only if the codomain of $f$ and the domain of $g$ are the same.
+\end{defn}
+
+\begin{lem}\label{lem:associativity}
+  Composition is associative, i.e., $(f \circ g) \circ h = f \circ (g \circ h)$.
+\end{lem}
+\begin{proof}
+  Exercise.
+  Hint: Use functional extensionality.
+\end{proof}
+
+\begin{defn}
+  For any set $S$, there is a special function $\id_{S}$, called the \emph{identity function on $S$}, defined by
+  \[
+    \id_{S}(s) = s
+  \]
+\end{defn}
+
+\begin{lem}\label{lem:unitality}
+  For any function $f : A \to B$, $\id_{B} \circ f = f$ and $f \circ \id_{A} = f$.
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\cref{lem:associativity,lem:unitality} together mean that sets and functions between them assemble into a category.
+Category theory is an interesting subject that we will sadly not discuss in this class.
+
+\begin{defn}
+  A function $f : A \to B$ is \emph{injective}, denoted $f : A \mono B$, if
+  \[
+    \forall a \in A.\forall a' \in A.\,(f(a) = f(a') \imp a = a')
+  \]
+\end{defn}
+
+\begin{defn}
+  A function $f : A \to B$ is \emph{surjective}, denoted $f : A \epi B$, if
+  \[
+    \forall b \in B.\exists a \in A.\,f(a) = b
+  \]
+\end{defn}
+
+\begin{thm}[Cantor's Theorem]
+  For any set $S$, there is no surjective functions $f : S \epi \cP(S)$.
+\end{thm}
+\begin{proof}
+  Suppose that $f : S \epi \cP(S)$.
+  Consider the subset $\{s \in S \mid s \notin f(s)\}$.
+  Since $f$ is surjective, there must be some $s' \in S$ so that $f(s') = \{s \in S \mid s \notin f(s)\}$.
+  If $s' \in f(s')$, then by definition, $s' \notin f(s')$, yielding a contradiction.
+  Similarly, if $s' \notin f(s')$, then by definition, $s' \in f(s')$.
+  This is a contradiction.
+\end{proof}
+
+\begin{defn}
+  A function $f : A \to B$ is \emph{bijective} if it is injective and surjective.
+\end{defn}
+
+\begin{defn}
+  A function $f : A \to B$ is \emph{invertible} if there is a function $g : B \to A$ such that
+  \begin{enumerate}
+  \item $f \circ g = \id_{B}$, and
+  \item $g \circ f = \id_{A}$.
+  \end{enumerate}
+  $g$ is called the inverse of $f$.
+  When $f$ is invertible, we write $f\inv$ for its inverse.
+\end{defn}
+
+\begin{thm}
+  A function $f : A \to B$ is invertible if and only if $f$ is bijective.
+\end{thm}
+\begin{proof}
+  The ``only if'' direction: assume that $f$ is invertible.
+  Then there is a function $f\inv : B \to A$ such that $f \circ f\inv = \id_{B}$ and $f\inv \circ f = \id_{A}$.
+
+  (Injectivity): Let $a, a' \in A$ be given.
+  Assume that $f(a) = f(a')$.
+  Then $\id_{A}(a) = f\inv(f(a)) = f\inv(f(a')) = \id_{A}(a')$.
+  Thus, $a = a'$.
+
+  (Surjectivity): Let $b \in B$ be given.
+  We need to show that there is some $a \in A$ so that $f(a) = b$.
+  Choose $a := f\inv(b)$, then $f(f\inv(b)) = \id_{B}(b) = b$.
+
+  The ``if'' direction: assume that $f$ is bijective.
+  We need to show that $f$ is invertible.
+  To this end, we construct a relation $f\inv \subseteq B \times A$: for each $a \in A$ so that $f(a) = b$, we take $(b, a) \in f\inv$.
+  To show that $f\inv$ is a function, we must show that it is total and functional.
+  Totality follows from surjectivity of $f$ and functionality follows from injectivity of $f$.
+  The details are left to the reader as an exercise.
+  Finally, it remains to check that $f\inv$ defines an inverse of $f$.
+  By functional extensionality, it suffices to check:
+  \begin{enumerate}
+  \item $(f \circ f\inv)(b) = \id_{B}(b) = b$ for all $b \in B$, and
+  \item $(f\inv \circ f)(a) = \id_{A}(a) = a$ for all $a \in A$.
+  \end{enumerate}
+  These two equations follow from the construction of $f\inv$.
+  The remaining details are left as an exercise.
+\end{proof}
+
+\section{Countable Sets and Uncountable Sets}
+\label{sec:countable-sets-and-uncountable-sets}
+
+\begin{defn}
+  A set $S$ is \emph{countable} if there is a bijection $f : S \to \dN$.
+\end{defn}
+
+\begin{thm}\label{thm:function-space-uncountable}
+  $\dN^{\dN}$ is uncountable.
+\end{thm}
+\begin{proof}
+  Suppose that $\dN^{\dN}$ is countable, i.e., $\dN \iso \dN^{\dN}$.
+  A possible interpretation of this hypothesis is that every function $f : \dN \to \dN$ can be given a unique natural-number code.
+  That is, there are functions
+  \begin{align}
+    \mathsf{decode} &: \dN \to \dN^{\dN}\\
+    \mathsf{encode} &: \dN^{\dN} \to \dN
+  \end{align}
+  that are mutual inverses.
+  Consider the function
+  \begin{align}
+    k &: \dN \to \dN\\
+    k &: n \mapsto \mathsf{decode}(n)(n) + 1
+  \end{align}
+  Given a code $n$, the function $k$ decodes $n$, yielding a function $\dN \to \dN$, then evaluates that function at $n$, and finally adds 1 to the result.
+
+  The function $k$ has a unique code given by $\mathsf{encode}(k)$.
+  Now, let's evaluate $k$ at its own code:
+  \begin{align}
+    k(\mathsf{encode}(k)) &= \mathsf{decode}(\mathsf{encode}(k))(\mathsf{encode}(k)) + 1\\
+                          &= k(\mathsf{encode}(k)) + 1
+  \end{align}
+  This is a contradiction.
+\end{proof}
+
+\cref{thm:function-space-uncountable} tells us that some functions $f : \dN \to \dN$ are uncomputable: there are only countably many programs that one can write, but there are uncountably many endofunctions on $\dN$. Thus, some of those functions do not have a corresponding program that computes it.
+
+\end{document}

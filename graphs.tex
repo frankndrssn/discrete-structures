@@ -1,0 +1,182 @@
+\documentclass{zett}
+\input{preambles}
+\usetikzlibrary {arrows.meta,backgrounds,fit,positioning}
+\title{Graphs}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Degrees}
+\label{sec:degrees}
+
+\begin{defn}
+  Let $G = (V,E)$ be a simple (no self loops) undirected graph.
+  A \emph{neighbor} of a given vertex $v \in V$ is a vertex $u \in V$ such that $\Set{u,v} \in E$.
+\end{defn}
+
+\begin{defn}
+  Let $G = (V,E)$ be a simple undirected graph.
+  The \emph{degree} of a given vertex $v \in V$, denoted as $\deg(v)$, is the number of neighbors of $v$.
+\end{defn}
+
+\begin{lem}[Handshake Lemma]
+  \label{lem:handshake-lemma}
+  Let $G = (V,E)$ be a simple undirected graph.
+  \[
+    2|E| = \sum_{v \in V}\deg(v)
+  \]
+\end{lem}
+\begin{proof}
+  \begin{node}
+    Proceed by induction on the number of vertices.
+    In the base case, there is no vertex, so there is no edges either.
+    In the induction step, there are $k + 1$ vertices.
+    By removing an arbitrary vertex $u$ from this graph, we are left with a graph with $k$ vertices.
+    By the induction hypothesis,
+    \[
+      2|E'| = \sum_{v \in V \setminus \Set{u}}\deg(v)
+    \]
+    where $E'$ is the set of remaining edges after removing $u$.
+  \end{node}
+  \begin{node}
+    Note that $2|E'| + 2\deg(u) = 2|E|$ because we had to remove exactly $\deg(u)$ edges when we removed $u$.
+    And $2\deg(u) + \sum_{v \in V \setminus \Set{u}}\deg(v) = \sum_{v \in V}\deg(v)$.
+  \end{node}
+\end{proof}
+
+\begin{defn}
+  A simple undirected graph $G$ is \emph{complete} if every vertex is adjacent to every other vertex.
+\end{defn}
+
+\begin{cor}
+  The complete graph $K_{n}$ with $n$ vertices has $\frac{n(n-1)}{2}$ edges.
+\end{cor}
+\begin{proof}
+  Since every vertex is adjacent to every other vertex, the degree of each vertex is $n - 1$.
+  By \cref{lem:handshake-lemma},
+  \[
+    2|E| = \sum_{v \in V}\deg(v) = \sum_{v \in V}(n-1) = n(n-1)
+  \]
+\end{proof}
+
+\section{Graph homomorphisms}
+\label{sec:graph-homomorphisms}
+
+\begin{node}
+  The word \emph{homomorphism} comes from Greek: \emph{homos} means ``same'' and \emph{morphe} means ``shape.''
+  A homomorphism is a structure-preserving mapping.
+\end{node}
+\begin{node}
+  A graph is a set $V$ equipped with a structure (a binary relation $E \subseteq V \times V$).
+\end{node}
+
+\begin{defn}
+  Let $G = (V,E)$ and $G' = (V',E')$ be graphs.
+  A \emph{graph homomorphism} $\varphi : G \to G'$ consists of an underlying function $|\varphi| : V \to V'$ that preserves the relation $E$, i.e., for all $u, v \in V$, if $(u,v) \in E$ then $(|\varphi|(u),|\varphi|(v)) \in E'$.
+\end{defn}
+
+\begin{lem}
+  Let $G = (V, E)$ be a graph.
+  The identity function $\id_{V} : V \to V$ is a graph homomorphism, denoted as $\id_{G} : G \to G$.
+\end{lem}
+\begin{proof}
+  \begin{node}
+    Let $u,v \in V$ be any vertices of $G$.
+    Suppose that $(u,v) \in E$.
+    Then clearly $(\id_{V}(u), \id_{V}(v)) = (u,v) \in E$.
+  \end{node}
+\end{proof}
+
+\begin{node}
+  \label{node:homomorphism-not-just-function}
+  A graph homomorphism is not just a function on vertex sets.
+  The graph structures are important.
+  For example, given a set $V = \Set{A,B,C}$, any subset $E \subseteq V \times V$ is a graph structure on $V$.
+  Two obvious graphs are the indiscrete graph $I = (V,\varnothing)$ and the discrete graph $D = (V,V \times V)$.
+  The identity function on $V$ is a graph homomorphism $I \to D$, but it is not a graph homomorphism $D \to I$.
+\end{node}
+
+\begin{lem}
+  Let $G = (V, E)$, $G' = (V', E')$, and $G'' = (V'', E'')$ be graphs and $\varphi : G \to G'$ and $\varphi' : G' \to G''$ be graph homomorphisms.
+  The composite $|\varphi'| \circ |\varphi| : V \to V''$ is a graph homomorphism, denoted as $\varphi' \circ \varphi : G \to G''$.
+\end{lem}
+\begin{proof}
+  Let $u,v \in V$ be given.
+  Assume that $(u,v) \in E$.
+  We need to show that $(|\varphi'| \circ |\varphi|(u),|\varphi'| \circ |\varphi|(v)) \in E''$.
+  Since $\varphi$ is a graph homomorphism, $(|\varphi|(u),|\varphi|(v)) \in E'$.
+  And since $\varphi'$ is a graph homomorphism, the result follows.
+\end{proof}
+
+\section{Graph isomorphisms}
+\label{sec:graph-isomorphisms}
+
+\begin{defn}
+  Let $G$ and $G'$ be graphs.
+  A graph homomorphism $\varphi : G \to G'$ is a \emph{graph isomorphism} if there is a graph homomorphisms $\varphi\inv : G' \to G$ such that $\varphi \circ \varphi\inv = \id_{G'}$ and $\varphi\inv \circ \varphi = \id_{G}$.
+\end{defn}
+
+\begin{node}
+  \cref{node:homomorphism-not-just-function} has demonstrated that not every bijection is a graph isomorphism because $D$ and $I$ are not isomorphic.
+  However, the underlying function of every graph isomorphism is a bijection.
+\end{node}
+
+\begin{notn}
+  We write $G \iso G'$ when there is a graph isomorphism between the two graphs.
+\end{notn}
+
+\section{Graph coloring}
+\label{sec:graph-coloring}
+
+\begin{defn}
+  Let $G = (V, E)$ be a simple undirected graph, a \emph{$k$-coloring} is a function $\chi : V \to \Set{1,2,\ldots,k}$ such that for any $u,v \in V$, if $\Set{u,v} \in E$ then $\chi(u) \neq \chi(v)$.
+\end{defn}
+
+\begin{lem}
+  \label{lem:graph-coloring-induced-coloring}
+  Let $G = (V,E)$ and $G' = (V',E')$ be graphs.
+  A graph homomorphism $\varphi : G \to G'$ together with a $k$-coloring $\chi$ of $G'$ induce a $k$-coloring of $G$.
+  \[
+    % https://q.uiver.app/#q=WzAsMyxbMCwwLCJWIl0sWzIsMCwiViciXSxbMSwxLCJcXFNldHsxLDIsXFxsZG90cyxrfSJdLFswLDEsInxcXHZhcnBoaXwiXSxbMSwyLCJmIl0sWzAsMiwiZiBcXGNpcmMgfFxcdmFycGhpfCIsMl1d
+    \begin{tikzcd}
+      V && {V'} \\
+      & {\Set{1,2,\ldots,k}}
+      \arrow["{|\varphi|}", from=1-1, to=1-3]
+      \arrow["\chi", from=1-3, to=2-2]
+      \arrow["{\chi \circ |\varphi|}"', from=1-1, to=2-2]
+    \end{tikzcd}
+  \]
+\end{lem}
+\begin{proof}
+  \begin{node}
+    Suppose that $\Set{u,v} \in E$.
+    We need to verify that $\chi \circ |\varphi|(u) \neq \chi \circ |\varphi|(v)$.
+    Since $\varphi$ is a graph homomorphism, $\Set{|\varphi|(u),|\varphi|(v)} \in E'$.
+    Since $\chi$ is a $k$-coloring of $G'$, the result follows.
+  \end{node}
+\end{proof}
+
+\begin{defn}
+  Let $G$ be a simple undirected graph.
+  The \emph{chromatic number} $\chi_{G}$ of $G$ is the minimum number such that $G$ has a $\chi_{G}$-coloring.
+\end{defn}
+
+\begin{lem}
+  Chromatic number is a graph theoretic property, i.e., if $G \iso G'$ and $G$ has chromatic number $k$, then $G'$ also has chromatic number $k$.
+\end{lem}
+\begin{proof}
+  \begin{node}
+    By \cref{lem:graph-coloring-induced-coloring}, a $k$-coloring of $G$ and an isomorphism $\varphi : G' \to G$ induces a $k$-coloring of $G'$.
+    It suffices to show that $k$ is the minimal number that makes $G'$ colorable.
+  \end{node}
+  \begin{node}
+    Suppose that there is some $k' < k$ such that $G'$ is $k'$ colorable.
+    Any $k'$-coloring of $G'$ together with the inverse isomorphism $\varphi\inv : G \to G'$ induce a $k'$-coloring of $G$.
+    This contradicts the minimality of $k$.
+  \end{node}
+\end{proof}
+
+\end{document}

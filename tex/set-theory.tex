@@ -1,0 +1,215 @@
+\documentclass[article,10pt,oneside]{memoir}
+\input{preambles}
+\title{Set Theory}
+\author{Frank Tsai}
+\date{\today}
+%\thanks{}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+\label{sec:introduction}
+
+Set theory appeared in Cantor's 1874 paper: ,,\"Uber eine Eigenschaft des Inbegriffes aller reellen algebraischen Zahlen.''
+Later, Bertrand Russell discovered a contradiction in Cantor's set theory, sparking the foundational crisis of mathematics.
+As a result, mathematicians developed several different flavors of set theory, among which was a well-known axiomatization of set theory by Zermelo, Fraenkel, and Skolem.
+
+\section{Sets}
+\label{sec:sets}
+
+Roughly, a \emph{set} is a collection of \emph{elements}.
+The language of set theory contains a binary predicate symbol $\in$, called the \emph{membership relation}.
+$x \in y$ means $x$ is an element of $y$.
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item The empty set: $\varnothing$.
+  \item The set containing the empty set: $\{\varnothing\}$.
+  \item A set containing 3 elements: $\{ a,b,c \}$.
+  \item The set of all natural numbers: $\dN = \{ 0,1,2,\ldots \}$.
+  \item The set of all integers: $\dZ = \{ \ldots,-2,-1,0,1,2,\ldots \}$.
+  \item The set containing $\dN$ and $\dZ$: $\{ \dN,\dZ \}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item Nothing is in the empty set: $x \notin \varnothing$.
+  \item The set containing the empty set has an element: $\varnothing \in \{\varnothing\}$.
+  \item $a \in \{ a, b, c \}$, $b \in \{ a, b, c \}$, $c \in \{ a, b, c \}$.
+  \item $\dN \in \{ \dN, \dZ \}$, $\dZ \in \{ \dN, \dZ \}$, but $0 \notin \{ \dN,\dZ \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Subsets}
+\label{sec:subsets}
+
+\begin{defn}
+  A set $x$ is a subset of $y$, denoted $x \subseteq y$, if every element in $x$ is also in $y$, i.e.,
+  \[
+    \forall z.(z \in x \imp z \in y)
+  \]
+  The relation $\subseteq$ is called \emph{set inclusion}.
+\end{defn}
+
+\begin{lem}
+  The empty set is a subset of any set.
+  \[
+    \forall y.\,\varnothing \subseteq y
+  \]
+\end{lem}
+\begin{proof}
+  Let $y$ be any set.
+  By definition, $\varnothing \subseteq y := \forall z.(z \in \varnothing \imp z \in y)$.
+  Let $z$ be given.
+  Assume that $z \in \varnothing$, but this is impossible since $z \notin \varnothing$.
+\end{proof}
+
+\begin{lem}
+  Every set is a subset of itself.
+  \[
+    \forall x.\, x \subseteq x
+  \]
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\begin{lem}
+  The subset relation is transitive, i.e.,
+  \[
+    \forall x.\forall y.\forall z.~x \subseteq y \To y \subseteq z \To x \subseteq z
+  \]
+\end{lem}
+\begin{proof}
+  Exercise.
+\end{proof}
+
+\begin{eg}\label{eg:subsets}
+  \begin{enumerate}
+  \item[]
+  \item $\varnothing$ has a subset $\varnothing$.
+  \item $\{ \varnothing \}$ has subsets $\varnothing$ and $\{ \varnothing \}$.
+  \item $\{ a,b \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, and $\{ a, b \}$.
+  \item $\{ a,b,c \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, $\{ c \}$, $\{ a,b \}$, $\{ a,c \}$, $\{ b,c \}$, and $\{ a,b,c \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Equality}
+\label{sec:equality}
+
+Two sets are equal when they contain the same elements.
+We can express this in terms of the set inclusion relation.
+\[
+  \forall x. \forall y.~x \subseteq y \To y \subseteq x \imp x = y
+\]
+Given two sets $x$ and $y$, to prove that $x = y$, it suffices to prove $x \subseteq y$ and $y \subseteq x$.
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item $\{a,b,c,d,d\} = \{a,b,c,d\}$.
+  \item $\{a,b,c\} = \{c,b,a\}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Comprehension}
+\label{sec:comprehension}
+
+Given a set $w$, there is a subset of $w$ whose elements satisfy a given property $\varphi$.
+\[
+  \{ x \in w \mid \varphi(x) \}
+\]
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item The set of all even natural numbers: $\{ x \in \dN \mid \mathrm{even}(x) \}$.
+  \item The set of all odd natural numbers: $\{ x \in \dN \mid \mathrm{odd}(x) \}$.
+  \item The set of all integers divisible by 2: $\{ x \in \dZ \mid x \cng 0 \mod 2 \}$.
+  \item The set of all real numbers between $0$ and $1$ (inclusive): $\{ x \in \dR \mid 0 \leq x \leq 1 \}$.
+  \end{enumerate}
+\end{eg}
+
+\section{Power Set}
+\label{sec:power-set}
+
+In \cref{eg:subsets}, $\{ a,b,c \}$ has subsets $\varnothing$, $\{ a \}$, $\{ b \}$, $\{ c \}$, $\{ a,b \}$, $\{ a,c \}$, $\{ b,c \}$, and $\{ a,b,c \}$.
+These subsets form a set
+\[
+  \{ \varnothing, \{ a \}, \{ b \}, \{ c \}, \{ a,b \}, \{ a,c \}, \{ b,c \}, \{ a,b,c \} \}
+\]
+
+\begin{defn}
+  Let $x$ be a set.
+  The \emph{power set} of $x$, denoted $\cP(x)$, is the set of all subsets of $x$.
+\end{defn}
+
+
+\begin{eg}\label{eg:subsets}
+  \begin{enumerate}
+  \item[]
+  \item $\cP(\varnothing) = \{\varnothing\}$.
+  \item $\cP(\{ \varnothing \}) = \{\varnothing, \{\varnothing\}\}$.
+  \item $\cP(\{\varnothing, \{\varnothing\}\}) = \{ \varnothing, \{\varnothing\}, \{\{\varnothing\}\}, \{\varnothing, \{\varnothing\}\} \}$.
+  \item $\cP(\{ a,b,c \}) = \{ \varnothing, \{ a \}, \{ b \}, \{ c \}, \{ a,b \}, \{ a,c \}, \{ b,c \}, \{ a,b,c \} \}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{thm}[Cantor's Theorem]
+  For any set $x$, there is no surjective function $f : x \to \cP(x)$.
+\end{thm}
+\begin{proof}
+  Deferred to a later module.
+\end{proof}
+
+\section{Union}
+\label{sec:union}
+
+\begin{defn}
+  The \emph{union} of two sets $x$ and $y$, denoted as $x \cup y$, is a set that contains exactly those elements of $x$ and those of $y$.
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item $\{1,2,3\} \cup \{a,b,c\} = \{1,2,3,a,b,c\}$.
+  \item $\{a,b,c\} \cup \{b,c,d\} \cup \{c,d,e\} = \{a,b,c,d,e\}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{rmk}
+  Set union can be characterized by a universal property: $x \cup y$ is the ``smallest'' set so that $x \subseteq x \cup y$ and $y \subseteq x \cup y$.
+  That is, for any sets $x, y,$ and $z$, if $x \subseteq z$ and $y \subseteq z$ then $x \cup y \subseteq z$, i.e.,
+  \[
+    x \subseteq z \To y \subseteq z \To x \cup y \subseteq z
+  \]
+\end{rmk}
+
+\section{Intersection}
+\label{sec:intersection}
+
+\begin{defn}
+  The \emph{intersection} of two sets $x$ and $y$, denoted as $x \cap y$, is a set that contains exactly those elements that $x$ and $y$ have in common.
+\end{defn}
+
+\begin{eg}
+  \begin{enumerate}
+  \item[]
+  \item $\{1,2,3\} \cap \{a,b,c\} = \varnothing$.
+  \item If $\{a,b,c\} \cap \{b,c,d\} \cap \{c,d,e\} = \{c\}$.
+  \end{enumerate}
+\end{eg}
+
+\begin{rmk}
+  Set intersection can be characterized by a universal property: $x \cap y$ is the ``largest'' set so that $x \cap y \subseteq x$ and $x \cap y \subseteq y$.
+  That is, for any sets $x, y,$ and $z$, if $z \subseteq x$ and $z \subseteq y$ then $z \subseteq x \cap y$, i.e.,
+  \[
+    z \subseteq x \To z \subseteq y \To z \subseteq x \cap y
+  \]
+\end{rmk}
+
+\end{document}

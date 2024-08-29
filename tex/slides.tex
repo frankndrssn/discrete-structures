@@ -1,0 +1,35 @@
+\documentclass{beamer}
+\newif\ifbeamer\beamertrue
+\input{decls}
+\tikzcdset{diagrams={ampersand replacement=\&}}
+
+% \usetheme{Warsaw}
+% \setbeamertemplate{headline}{}
+
+\usetheme[height=0cm]{Rochester}
+\useinnertheme{circles}
+% \useoutertheme[compress,subsection=false]{miniframes}
+\usecolortheme{rose}
+\setbeamertemplate{navigation symbols}{}
+
+\title{}
+\author[author]{author\inst{1} \and coauthor\inst{2}}
+\institute{\inst{1} (affiliation)
+\and \inst{2} (coauthor affiliation)}
+\date{}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+
+\end{document}

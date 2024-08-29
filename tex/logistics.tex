@@ -1,0 +1,85 @@
+\documentclass{beamer}
+\newif\ifbeamer\beamertrue
+\input{decls}
+\tikzcdset{diagrams={ampersand replacement=\&}}
+\usetikzlibrary{shapes.geometric, arrows}
+
+% \usetheme{Warsaw}
+% \setbeamertemplate{headline}{}
+
+\usetheme[height=0cm]{Rochester}
+\useinnertheme{circles}
+% \useoutertheme[compress,subsection=false]{miniframes}
+\usecolortheme{rose}
+\setbeamertemplate{navigation symbols}{}
+
+\title{Logistics}
+\author[Frank]{Frank Tsai\inst{1}}
+\institute{\inst{1} (SUNY at Buffalo)}
+\date{}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\begin{frame}{Piazza}
+  \begin{itemize}
+  \item Questions and discussions should be posted on Piazza
+  \item Reserve email for university bureaucracy (exam accommodation, etc)
+  \item Include ``[CS191]'' in the email title
+  \end{itemize}
+  \vfill
+  Sign-up link: \href{https://piazza.com/buffalo/spring2024/cs191}{https://piazza.com/buffalo/spring2024/cs191}
+\end{frame}
+
+\begin{frame}{About}{Piazza: \href{https://piazza.com/buffalo/spring2024/cs191}{https://piazza.com/buffalo/spring2024/cs191}}
+  \begin{itemize}
+  \item[] \textbf{Goal:} develop mathematical maturity (think like a mathematician/computer scientist)
+  \item<2->[] \textbf{Why?}
+  \item<3-> \textbf{System designers:} designed system has desired properties (e.g., passwords don't leak)
+  \item<4-> \textbf{Programming language designers:} designed programming language has desired properties (e.g., correct programs don't crash)
+  \item<5-> \textbf{Software engineers:} develop principled approach to solving problems 
+  \item<6-> Computer science is intimately linked to mathematics (you will start to appreciate this later)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Recitations}{Piazza: \href{https://piazza.com/buffalo/spring2024/cs191}{https://piazza.com/buffalo/spring2024/cs191}}
+  \begin{itemize}
+  \item Attendance is not required
+  \item Recitations supplement lectures
+    \begin{itemize}
+    \item<2-> Coq tutorials
+    \item<2-> Supplementary lectures
+    \item<2-> Homework hints
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Installing Coq}{Piazza: \href{https://piazza.com/buffalo/spring2024/cs191}{https://piazza.com/buffalo/spring2024/cs191}}
+  \begin{enumerate}
+  \item Go to \href{https://github.com/coq/platform/releases/tag/2023.03.0}{https://github.com/coq/platform/releases/tag/2023.03.0}
+  \item If your OS is
+    \begin{itemize}
+    \item[] \textbf{Windows:} choose ``Windows (64 bit) installer for Coq 8.17.1''\vspace{1pt}
+    \item[] \textbf{Mac (Intel):} choose ``macOS (Intel) installer for Coq 8.17.1''\vspace{1pt}
+    \item[] \textbf{Mac (M1/M2/Apple Silicon/ARM):} choose ``macOS (M1/M2/Apple Silicon/ARM) installer for Coq 8.17.1''\vspace{1pt}
+    \item[] \textbf{Linux:} choose ``Linux (Snap) installer for Coq 8.17.1''
+    \end{itemize}
+  \item You are free to leave once you have a working installation of Coq
+  \end{enumerate}
+  \begin{block}{Mac users}
+    You probably need to give the installer permission to run.
+    You can find the option under System Preferences > Privacy \& Security
+  \end{block}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,810 @@
+\documentclass{amsart}
+\input{decls}
+\usepackage{agda}
+\title{Induction}
+\author{Frank Tsai}
+\date{\today}
+% \thanks{}
+
+\usepackage{newunicodechar}
+\newunicodechar{λ}{\ensuremath{\mathnormal\lambda}}
+\newunicodechar{←}{\ensuremath{\mathnormal\from}}
+\newunicodechar{→}{\ensuremath{\mathnormal\to}}
+\newunicodechar{∀}{\ensuremath{\mathnormal\forall}}
+\newunicodechar{≡}{\ensuremath{\mathnormal\cng}}
+\newunicodechar{≐}{\ensuremath{\mathnormal=}}
+\newunicodechar{ℕ}{\ensuremath{\mathnormal\dN}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Induction}
+\label{sec:induction}
+
+Roughly speaking, natural numbers $\dN$ are the ``minimal'' data type equipped with a successor function $s : \dN \to \dN$.
+We can define $\dN$ inductively:
+\begin{enumerate}
+\item $0$ is a natural number;
+\item if $n$ is a natural number, then $s(n)$ is also a natural number.
+\end{enumerate}
+
+\begin{code}%
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{ℕ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaInductiveConstructor{zero}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{ℕ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{ℕ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{ℕ}\<%
+\end{code}
+
+We may want to prove that every natural number has some property $P$.
+For example, we may want to prove that for any natural number $n$, $2 \mid n(n+1)$.
+If we proceed directly, we may write down ``let $n$ be a natural number, we need to prove $2 \mid n(n+1)$.''
+Sadly, we are stuck because we don't know what $n$ is.
+
+The good news is we know that every natural number is either $0$ or the successor of some other natural number, i.e., $s(m)$.
+If we can somehow show the followings:
+\begin{mathpar}
+  P(0) \and \forall k.\,(P(k) \imp P(s(k)))
+\end{mathpar}
+then we can reason as follows: let $n$ be any natural number, we want to show $P(n)$.
+We can do a case analysis on $n$.
+If $n$ is $0$, then we need to show $P(0)$, which we have shown already.
+If $n$ is $s(m)$ instead, then we need to show $P(s(m))$.
+Since we know $\forall k.\,(P(k) \imp P(s(k)))$, it suffices to show $P(m)$.
+To show $P(m)$, we repeat the previous argument, i.e., we do a case analysis on $m$ and so on.
+
+This is similar to writing a recursive function with a base case in programming.
+In fact, we can implement this in programming languages such as Agda.
+
+\begin{code}%
+%
+\>[2]\AgdaFunction{induction}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[23I]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{ℕ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[23I]%
+\>[14]\AgdaBound{P}\AgdaSpace{}%
+\AgdaNumber{0}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[14]\AgdaSymbol{(∀}\AgdaSpace{}%
+\AgdaBound{k}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{k}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{k}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[14]\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaBound{n}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{n}\<%
+\\
+%
+\>[2]\AgdaFunction{induction}\AgdaSpace{}%
+\AgdaBound{b}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaInductiveConstructor{zero}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{b}\<%
+\\
+%
+\>[2]\AgdaFunction{induction}\AgdaSpace{}%
+\AgdaBound{b}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{induction}\AgdaSpace{}%
+\AgdaBound{b}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\<%
+\end{code}
+
+In summary, the principle of induction says that to prove that $\forall n.\,P(n)$, it suffices to prove two things:
+\begin{enumerate}
+\item Base case: $P(0)$, and
+\item Induction step: $\forall k.\,(P(k) \imp P(s(k)))$.
+\end{enumerate}
+To prove the induction step, we introduce a natural number $k$ and assume $P(k)$ (the induction hypothesis), and derive $P(s(k))$.
+
+\section{Examples}
+\label{sec:examples}
+
+\begin{prop}
+  For all $n \in \dN$, $2 \mid n(n + 1)$.
+\end{prop}
+\begin{proof}
+  $P(n)$ is $2 \mid n(n + 1)$.
+  By induction on $n$, it suffices to prove
+  \begin{enumerate}
+  \item Base case: $P(0)$, i.e., $2 \mid 0(0 + 1)$.
+  \item Induction step: $\forall k.\,(P(k) \imp P(k + 1))$, i.e.,
+    \[ \forall k.\,(2 \mid k(k + 1) \imp 2 \mid (k + 1)((k + 1) + 1)) \]
+  \end{enumerate}
+
+  (Base case): Clearly, $2$ divides $0$.
+
+  (Induction step): Let $k$ be a natural number.
+  Assume $2 \mid k(k + 1)$.
+  We need to show that $2 \mid (k + 1)((k + 1) + 1)$, or equivalently, $2 \mid (k(k+1) + 2k + 2)$.
+  By the induction hypothesis, $2$ divides $k(k + 1)$, and clearly, $2$ also divides $2k + 2$.
+\end{proof}
+
+\begin{prop}
+  For all $n \in \dN$, $2^{0} + 2^{1} + \cdots + 2^{n} = 2^{n + 1} - 1$, i.e.,
+  \[
+    \sum_{i=0}^{n}2^{i} = 2^{n + 1} - 1
+  \]
+\end{prop}
+\begin{proof}
+  $P(n)$ is $2^{0} + 2^{1} + \cdots + 2^{n} = 2^{n + 1} - 1$.
+  By induction on $n$, it suffices to prove
+  \begin{enumerate}
+  \item Base case: $P(0)$, i.e., $2^{0} = 2^{0 + 1} - 1$.
+  \item Induction step: $\forall k.\,(P(k) \imp P(k + 1))$, i.e.,
+    \[ \forall k.\,\left(\sum_{i=0}^{n}2^{i} = 2^{n + 1} - 1 \imp \sum_{i=0}^{n+1}2^{i} = 2^{(n+1) + 1} - 1\right) \]
+  \end{enumerate}
+  
+  (Base case): It follows immediately by computation.
+  
+  (Induction case): Let $k$ be a natural number.
+  Assume that
+  \[
+    \sum_{i=0}^{n}2^{i} = 2^{n + 1} -1
+  \]
+  We need to prove
+  \[
+    \sum_{i=0}^{n+1}2^{i} = 2^{(n+1) + 1} - 1
+  \]
+  Using the induction hypothesis, the left hand side can be rewritten as follows:
+  \[
+    \left(\sum_{i=0}^{n}2^{i}\right) + 2^{n+1} = 2^{n + 1} - 1 + 2^{n + 1} = 2^{n + 2} - 1
+  \]
+\end{proof}
+
+So far, the choice of $P$ is straightforward.
+Let's see an example where the choice of $P$ is not so straightforward, but let's see what happens if we choose the na\"ive $P$.
+
+\begin{prop}\label{prop:recurrence}
+  Consider a function $f : \dN \to \dN$ defined recursively as follows:
+  \begin{align}
+    f(0) &= 1\\
+    f(1) &= 3\\
+    f(n+2) &= 2f(n + 1) - f(n)
+  \end{align}
+  This function has a closed form:
+  \[
+    \forall n.\,f(n) = 2n + 1
+  \]
+\end{prop}
+\begin{proof}[Failed Attempt]
+  $P(n)$ is $f(n) = 2n + 1$.
+  By induction on $n$, we need to prove the base case and the induction step.
+
+  (Base case): $P(0)$ is $f(0) = 2 \cdot 0 + 1$.
+  By definition, $f(0) = 1$ and by computation $2 \cdot 0 + 1 = 1$, so the base case goes through fine.
+
+  (Induction step): Let $k \in \dN$.
+  Assume that $f(k) = 2k + 1$, we need to prove $f(k+1) = 2(k+1) + 1$.
+  If $k$ is $0$, then the equality follows by computation.
+  If $k > 0$, then by definition $f(k + 1) = 2f(k) - f(k - 1)$.
+  By the induction hypothesis, $f(k) = 2k + 1$, so
+  \[
+    f(k + 1) = 2(2k + 1) - f(k - 1)
+  \]
+  We are stuck because the induction hypothesis does not tell us anything about $f(k - 1)$.
+\end{proof}
+
+We need a stronger induction hypothesis that tells us something about $f(k - 1)$.
+This requires a different choice of $P$.
+Let's consider the following lemma.
+
+\begin{lem}\label{lem:stronger-IH}
+  For all $m \in \dN$ and $n \in \dN$, if $n < m$ then $f(n) = 2n + 1$.
+\end{lem}
+\begin{proof}
+  $P(m)$ is $\forall n.\,(n < m \imp f(n) = 2n + 1)$.
+  By induction on $m$, it suffices to show the base case and the induction step.
+
+  (Base case): $P(0)$ is $\forall n.\,(n < 0 \imp f(n) = 2n + 1)$.
+  Let $n \in \dN$.
+  Assume $n < 0$.
+  This is a contradiction because no natural number is strictly less than $0$.
+
+  (Induction step): Let $k \in \dN$.
+  The induction hypothesis $P(k)$ is
+  \[
+    \forall n.\,(n < k \imp f(n) = 2n + 1)
+  \]
+  and we need to prove $P(k+1)$, which is
+  \[
+    \forall n.\,(n < k + 1 \imp f(n) = 2n + 1)
+  \]
+  Note that the induction hypothesis now tells us something about $f(n)$ for any $n$ less than $k$.
+  To prove $P(k+1)$, let $n \in \dN$.
+  Assume $n < k + 1$.
+  
+  If $k$ is $0$ or $1$, then $n$ is $0$ or $1$.
+  These two cases follow directly from how $f$ is defined.
+
+  For $k > 1$, there are two cases:
+  If $n < k$, then the result follows immediately from the induction hypothesis.
+  
+  If $n = k$, then by definition $f(k) = 2f(k-1) - f(k-2)$.
+  Since $k - 2 < k$ and $k - 1 < k$, the induction hypothesis says that $f(k-2) = 2(k-2) + 1 = 2k - 3$ and that $f(k-1) = 2(k-1) + 1 = 2k - 1$.
+  Thus,
+  \begin{align}
+    f(k) &= 2f(k-1) - f(k-2)\\
+         &= 2(2k - 1) - (2k - 3)\\
+         &= 4k - 2 - 2k + 3\\
+         &= 2k + 1
+  \end{align}
+\end{proof}
+
+\cref{prop:recurrence} is an immediate corollary of \cref{lem:stronger-IH}.
+\begin{proof}[Proof of \cref{prop:recurrence}]
+  Let $n \in \dN$.
+  We need to prove $f(n) = 2n + 1$.
+  This follows immediately from \cref{lem:stronger-IH} by setting $m := n + 1$.
+\end{proof}
+
+You may have heard \emph{strong induction} in class.
+Unfortunately, the name ``strong induction'' is somewhat misleading because anything provable with strong induction can be proved with mathematical induction presented here and vice-versa, i.e., strong induction is \textbf{not} stronger than mathematical induction.
+In fact, the pattern used in \cref{lem:stronger-IH} is what strong induction does.
+
+\begin{prop}\label{prop:lincomb}
+  For any $n \in \dN$, if $n \geq 2$ then $n$ is a linear combination of $2$ and $3$, i.e., there are natural numbers $i$ and $j$ so that $n = 2i + 3j$.
+\end{prop}
+
+Again, we need to strengthen the induction hypothesis.
+
+\begin{lem}\label{lem:lincomb-strong}
+  For any $m \in \dN$ and $n \in \dN$, if $n < m$ then if additionally $n \geq 2$ then $n$ is a linear combination of $2$ and $3$.
+\end{lem}
+\begin{proof}
+  $P(m)$ is $\forall n.\,(n < m \imp (n \geq 2 \imp \exists i.\,\exists j.\,n = 2i + 3j))$.
+
+  (Base case): $P(0)$ is $\forall n.\,(n < 0 \imp (n \geq 2 \imp \exists i.\,\exists j.\,n = 2i + 3j))$.
+  Let $n \in \dN$.
+  Assume $n < 0$.
+  This is a contradiction.
+
+  (Induction step): Let $k \in \dN$.
+  Assume $P(k)$, i.e.,
+  \[
+    \forall n.\,(n < k \imp (n \geq 2 \imp \exists i.\,\exists j.\,n = 2i + 3j))
+  \]
+  We need to prove $P(k+1)$, i.e.,
+  \[
+    \forall n.\,(n < k + 1 \imp (n \geq 2 \imp \exists i.\,\exists j.\,n = 2i + 3j))
+  \]
+  Let $n \in \dN$.
+  Assume $n < k + 1$ and $n \geq 2$, so $k \geq 2$.
+  If $k = 2$ then $n$ has to be $2$, which can be expressed as $2 \cdot 1 + 3 \cdot 0$.
+  If $k = 3$ then $n$ has to be $2$ or $3$.
+  We know how to express $2$, and $3$ can be expressed as $2 \cdot 0 + 3 \cdot 1$.
+  For $k \geq 4$, if $n < k$ then the induction hypothesis gives us what we want.
+  If $n = k$, then consider $k - 2$.
+  The induction hypothesis tells us that there are natural numbers $a$ and $b$ so that $k - 2 = 2a + 3b$.
+  We can then express $n$ as $n = k = k - 2 + 2 = 2(a + 1) + 3b$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{prop:lincomb}]
+  Let $n \in \dN$.
+  Assume $n \geq 2$.
+  The result follows immediately from \cref{lem:lincomb-strong}.
+\end{proof}
+
+\section{Well-Founded Induction}
+\label{sec:well-founded-induction}
+
+We can generalize this argument to any data type equipped with a \emph{well-founded} relation.
+A binary relation $R$ on $S$ is well-founded if every element $s$ of $S$ is \emph{accessible}.
+An element $s$ is said to be accessible if it does not have an infinite descending chain with respect to $R$, i.e., $s$ reaches a base case in finitely many steps.
+
+\begin{code}%
+\>[0][@{}l@{\AgdaIndent{1}}]%
+\>[2]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaOperator{\AgdaInductiveConstructor{acc\AgdaUnderscore{}k}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{r}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaBound{r}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaBound{r}\AgdaSpace{}%
+\AgdaBound{x}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[2]\AgdaFunction{wf}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+%
+\>[2]\AgdaFunction{wf}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{r}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaBound{r}\AgdaSpace{}%
+\AgdaBound{x}\<%
+\end{code}
+
+\emph{Well-founded induction} says that to prove $\forall x.P(x)$, it suffices to prove
+\[
+  \forall x.\,((\forall y.\,y R x \to P(y)) \to P(x))
+\]
+where $R$ is a well-founded relation.
+\begin{code}%
+%
+\>[2]\AgdaFunction{wf-induction}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[68I]\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[68I]%
+\>[17]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[17]\AgdaSymbol{(}\AgdaOperator{\AgdaBound{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[17]\AgdaFunction{wf}\AgdaSpace{}%
+\AgdaOperator{\AgdaBound{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[17]\AgdaSymbol{((}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaOperator{\AgdaBound{<}}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[17]\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{x}\<%
+\\
+%
+\>[2]\AgdaFunction{wf-induction}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{P}\AgdaSymbol{\}}%
+\>[24]\AgdaOperator{\AgdaBound{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{wfp}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{h}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{wfp}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaBound{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{x}\<%
+\\
+%
+\>[4]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{acc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaSymbol{.}}\AgdaDottedPattern{\AgdaBound{x}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{k}}\AgdaSpace{}%
+\AgdaBound{g}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{f}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{(λ}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaBound{l}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{h}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{g}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaBound{l}\AgdaSymbol{))}\<%
+\end{code}
+
+In particular, strong induction is a special case of well-founded induction because the less-than relation on $\dN$ is well-founded.
+\begin{code}%
+%
+\>[2]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaOperator{\AgdaInductiveConstructor{zero\AgdaUnderscore{}suc}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaNumber{0}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{n}\<%
+\\
+%
+\>[4]\AgdaOperator{\AgdaInductiveConstructor{n\AgdaUnderscore{}suc}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
+\AgdaBound{m}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{n}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaBound{m}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{n}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{m}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[2]\AgdaKeyword{private}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaFunction{<-0-acc}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaNumber{0}\<%
+\\
+%
+\>[4]\AgdaFunction{<-0-acc}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{acc}}\AgdaSpace{}%
+\AgdaNumber{0}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{k}}\AgdaSpace{}%
+\AgdaSymbol{(λ}\AgdaSpace{}%
+\AgdaBound{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{h}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[4][@{}l@{\AgdaIndent{0}}]%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaNumber{0}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{y}\<%
+\\
+%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{()}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[4]\AgdaFunction{<-1-acc}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaNumber{1}\<%
+\\
+%
+\>[4]\AgdaFunction{<-1-acc}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{acc}}\AgdaSpace{}%
+\AgdaNumber{1}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{k}}\AgdaSpace{}%
+\AgdaSymbol{(λ}\AgdaSpace{}%
+\AgdaBound{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{h}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[4][@{}l@{\AgdaIndent{0}}]%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaNumber{1}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{y}\<%
+\\
+%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{zero\AgdaUnderscore{}suc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaSymbol{.}}\AgdaDottedPattern{\AgdaNumber{0}}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{<-0-acc}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[4]\AgdaFunction{<-suc-acc}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\<%
+\\
+%
+\>[4]\AgdaFunction{<-suc-acc}\AgdaSpace{}%
+\AgdaInductiveConstructor{zero}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{<-1-acc}\<%
+\\
+%
+\>[4]\AgdaFunction{<-suc-acc}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{acc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaSymbol{.(}}\AgdaDottedPattern{\AgdaInductiveConstructor{suc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaBound{x}}\AgdaDottedPattern{\AgdaSymbol{)}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{k}}\AgdaSpace{}%
+\AgdaBound{e}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{acc}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{k}}\AgdaSpace{}%
+\AgdaFunction{h}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[4][@{}l@{\AgdaIndent{0}}]%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{acc}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{y}\<%
+\\
+%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaInductiveConstructor{zero}\AgdaSpace{}%
+\AgdaBound{l}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{<-0-acc}\<%
+\\
+%
+\>[6]\AgdaFunction{h}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{n}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaSymbol{.(}}\AgdaDottedPattern{\AgdaInductiveConstructor{suc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaBound{y}}\AgdaDottedPattern{\AgdaSymbol{)}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{suc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaSymbol{.(}}\AgdaDottedPattern{\AgdaInductiveConstructor{suc}}\AgdaSpace{}%
+\AgdaDottedPattern{\AgdaBound{x}}\AgdaDottedPattern{\AgdaSymbol{)}}\AgdaSpace{}%
+\AgdaBound{l}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{e}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{l}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[2]\AgdaFunction{<-wf}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{wf}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\<%
+\\
+%
+\>[2]\AgdaFunction{<-wf}\AgdaSpace{}%
+\AgdaInductiveConstructor{zero}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{<-0-acc}\<%
+\\
+%
+\>[2]\AgdaFunction{<-wf}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{<-suc-acc}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{<-wf}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\>[2]\AgdaFunction{strong-induction}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[311I]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[311I]%
+\>[21]\AgdaSymbol{((}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaBound{y}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{<}}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{y}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+%
+\>[21]\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Nat}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{x}\<%
+\\
+%
+\>[2]\AgdaFunction{strong-induction}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{wf-induction}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}<\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaFunction{<-wf}\<%
+\end{code}
+
+In summary, strong induction says that to prove $\forall x \in \dN.\,P(x)$, it suffices to prove
+\[
+  \forall k.\,((\forall y.\, y < k \to P(y)) \to P(k))
+\]
+
+\end{document}
