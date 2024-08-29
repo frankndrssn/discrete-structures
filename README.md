@@ -1,1 +1,1 @@
-# cse-191-fall23
+# cse-191 discrete structures
